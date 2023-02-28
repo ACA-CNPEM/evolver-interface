@@ -2,11 +2,11 @@ import serial
 import time
 
 status = {
-    "stir": [16,15,8,7,14,13,6,5,12,11,4,3,10,9,2,1], #[8,8,8,8,8,8,8,8,8,8,8,3,8,8,8,8],
+    "stir": [8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8],
     "temp": [4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095],
     "od_135": 1000,
     "od_led": [4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095],
-    "pump": [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47] #[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    "pump": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 }
 
 op_1 = ['1',' 1','1 ']
@@ -40,7 +40,7 @@ comm = serial.Serial(
 )
 
 channel2ss = [16,15,8,7,14,13,6,5,12,11,4,3,10,9,2,1]
-channel2pump = [8,7,6,5,4,3,2,1,16,15,14,13,12,11,10,9]
+channel2pump = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16] #[8,7,6,5,4,3,2,1,16,15,14,13,12,11,10,9]
 
 pump_a = [39,38,37,36,35,34,33,32,47,46,45,44,43,42,41,40]
 pump_b = [23,22,21,20,19,18,17,16,31,30,29,28,27,26,25,24]
@@ -182,8 +182,14 @@ def stir():
 
     echo_recebido = le_string()
     if (echo_recebido != ""):
-        print(f"Esse é o comando recebido e echoado pelo sistema: '{echo_recebido}'\nIsso se traduz em: ")
-        echo_recebido = print_resposta(echo_recebido,channel2ss)
+        print(f"Esse é o comando recebido e echoado pelo sistema: '{echo_recebido}'\nIsso se traduz em (%): ")
+        inicio = echo_recebido.find(",")
+        fim = echo_recebido.rfind(",")
+        echo_recebido = echo_recebido[inicio+1:fim].split(",")
+        string = [round(float(echo_recebido[i])*100/90,2) for i in range(16)]
+        print_comando(string,channel2ss)
+
+        #echo_recebido = print_resposta(echo_recebido,channel2ss)
 
         acknowledge = input("> Gostaria de executá-lo? [y/n]\n> ")
         print()
@@ -229,11 +235,21 @@ def temp():
                         broadcast = texto_recebido[i+3:]
                         break
                     
-        print(f"Esse é o comando recebido e echoado pelo sistema: '{echo}'\nIsso se traduz em: ")
-        echo = print_resposta(echo,channel2ss)
+        print(f"Esse é o comando recebido e echoado pelo sistema: '{echo}'\nIsso se traduz em (%): ")
+        #echo = print_resposta(echo,channel2ss)
+        inicio = echo.find(",")
+        fim = echo.rfind(",")
+        echo = echo[inicio+1:fim].split(",")
+        string = [round(float(echo[i])*100/4095,2) for i in range(16)]
+        print_comando(string,channel2ss)
 
-        print(f"O estado atual do sistema é: '{broadcast}'\nIsso se traduz em: ")
-        broadcast = print_resposta(broadcast,channel2ss)
+        print(f"O estado atual do sistema é: '{broadcast}'\nIsso se traduz em (°C): ")
+        # broadcast = print_resposta(broadcast,channel2ss)
+        inicio = broadcast.find(",")
+        fim = broadcast.rfind(",")
+        broadcast = broadcast[inicio+1:fim].split(",")
+        string = [(round(float(broadcast[i])*22/2048,1)) for i in range(16)]
+        print_comando(string,channel2ss)
 
         acknowledge = input("> Gostaria de executar o comando? [y/n]\n> ")
         print()
