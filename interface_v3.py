@@ -47,10 +47,12 @@ pump_b = [23,22,21,20,19,18,17,16,31,30,29,28,27,26,25,24]
 pump_c = [7,6,5,4,3,2,1,0,15,14,13,12,11,10,9,8]
 
 
-def print_comando(string,channel):
+def print_comando(string,channel,unit):
     for i in range(8):
-        print("[SS{}]:{}          [SS{}]:{}"
-        .format(i+1, string[channel.index(i+1)], i+9, string[channel.index(i+9)]))
+        print("[SS{}]: {}".format(i+1, string[channel.index(i+1)]) + 
+              f" {unit}          " + 
+              "[SS{}]: {}".format(i+9, string[channel.index(i+9)]) +
+              f" {unit}")
     print()
 
 
@@ -75,18 +77,29 @@ def le_string():
     return message
 
 
-def ss_inputs():
+'''def todos_inputs():
     inputs = []
 
     for i in range(16):
-        inputs += [input(f"> [SS{i+1}]: ")]
-    print()
+        raw_input = input(f"> [SS{i+1}]: ")
 
+        if (raw_input in exit):
+            while (i < 16):
+                inputs += 0
+                i += 1
+            break
+        else:
+            inputs += raw_input
+
+    print()
     return inputs
 
 
 def le_inputs():
     inputs = ss_inputs()
+    if (len(ss_inputs) != 16):
+        inputs = [0 for i in range(16)]
+
     print("Você digitou: ", inputs)
     
     enviar = input("> Era isso que gostaria de ter digitado? [y/n]\n> ")
@@ -115,20 +128,29 @@ def le_inputs():
             else:
                 return -1
 
-    return inputs
+    return inputs'''
 
 
 def le_comandos(inputs, channel):
+    print(inputs)
     comando = input("> Digite o número da Smart Sleeve que você deseja comandar, 'T' se for comandar todas, e 'X' para finalizar a inserção de comandos.\n> ")
     print()
 
     while (comando not in exit):
         if (comando in todos):
-            leitura = le_inputs()
+            leitura = []
 
             for i in range(16):
-                inputs[channel.index(int(i+1))] = leitura[i] 
+                raw_input = input(f"> [SS{i+1}]: ")
 
+                if (raw_input in exit):
+                    break
+                else:
+                    leitura += [raw_input]
+            print()
+
+            for i in range(len(leitura)):
+                inputs[channel.index(i+1)] = leitura[i] 
             break
 
         elif (comando in ss):
@@ -142,8 +164,7 @@ def le_comandos(inputs, channel):
             print("Comando inválido, reveja.")
             comando = input("> Digite o número da Smart Sleeve que você deseja comandar, 'T' se for comandar todas, e 'X' para finalizar a inserção de comandos.\n> ")
             print()
-        
-    print("Inserção finalizada!\n")
+    
     return inputs
 
 
@@ -163,10 +184,12 @@ def tipo_de_comando():
 
 #### CONTROLE DE AGITAÇÃO
 def stir():
-    print("As ventoinhas estão atuando atualmente com os seguintes comandos:")
-    print_comando(status["stir"], channel2ss)
+    stir_inputs = [round(float(status["stir"][i])*100/97, 2) for i in range(16)]
 
-    print("Atualize os valores para cada ventoinha.")
+    print("O status atual da agitação é de:")
+    print_comando(stir_inputs, channel2ss, '%')
+
+    print("Atualize a agitação desejada: ")
     stir_inputs = le_comandos(status["stir"],channel2ss)
     tipo = tipo_de_comando()
 
@@ -411,12 +434,12 @@ def pump(ss2pump, liquido):
 
 ################################ ALTERAÇÃO DE PARÂMETROS ################################
 def atualizar_parametro():
-    parametro = input("Qual parâmetro gostaria de alterar?\n1 - Agitação\n2 - Temperatura\n3 - Turbidez\n4 - Fluxo de fluidos\n> ")
+    parametro = input("Qual parâmetro gostaria de alterar?\n1 - Agitação\n2 - Temperatura\n3 - Turbidez\n4 - Fluxo de fluidos\n(Digite 'X' pra sair)\n> ")
     print()
 
-    while (parametro not in op_1 and parametro not in op_2 and parametro not in op_3 and parametro not in op_4):
-        parametro = input("Escolha dentre as opções possíveis:\n1 - Agitação\n2 - Temperatura\n3 - Turbidez\n4 - Fluxo de fluidos\n> ")
-        print()
+    '''while (parametro not in op_1 and parametro not in op_2 and parametro not in op_3 and parametro not in op_4 and parametro not in exit):
+        parametro = input("Escolha dentre as opções possíveis:\n1 - Agitação\n2 - Temperatura\n3 - Turbidez\n4 - Fluxo de fluidos\n(Digite 'X' pra sair)\n> ")
+        print()'''
 
     if (parametro in op_1):
         stir()
@@ -453,12 +476,19 @@ def atualizar_parametro():
 
         else:
             pump(pump_c,'C')
+    
+    elif (parametro in exit):
+        return False
+
+    return True
         
 
 ######################################### MAIN #########################################
 print("\n ****** Inicializando a interface! ******\n")
-while True:
-    atualizar = input("> Gostaria de atualizar algum parâmetro? [y/n]\n> ")
+interagindo = True
+
+while interagindo:
+    '''atualizar = input("> Gostaria de atualizar algum parâmetro? [y/n]\n> ")
     print()
 
     while (atualizar not in yes and atualizar not in no):
@@ -477,5 +507,7 @@ while True:
             print("\n ****** Encerrando a iteração. Volte logo! ******\n")
             break
 
-    elif (atualizar in yes):
-        atualizar_parametro()
+    elif (atualizar in yes):'''
+    interagindo = atualizar_parametro()
+
+print("\n ****** Encerrando a interface. Volte logo! ******\n")
