@@ -2,11 +2,11 @@ import serial
 import time
 
 status = {
-    "stir": [16,15,8,7,14,13,6,5,12,11,4,3,10,9,2,1], #[8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8],
-    "temp": [16,15,8,7,14,13,6,5,12,11,4,3,10,9,2,1], #[4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095],
+    "stir": [8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8],
+    "temp": [4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095],
     "od_135": 1000,
-    "od_led": [16,15,8,7,14,13,6,5,12,11,4,3,10,9,2,1], #[4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095],
-    "pump": [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47] #[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    "od_led": [4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095],
+    "pump": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 }
 
 op_1 = ['1',' 1','1 ']
@@ -31,7 +31,7 @@ ss = ['1',' 1','1 ','2',' 2','2 ','3',' 3','3 ','4',' 4','4 ','5',' 5','5 ','6',
       '10',' 10','10 ','11',' 11','11 ','12',' 12','12 ','12',' 12','12 ','13',' 13','13 ','14',' 14','14 ','15',' 15','15 ','16',' 16','16 ']
 
 comm = serial.Serial(
-    port = '/dev/ttyACM0',
+    port = '/dev/serial0',
     baudrate = 9600,
     parity = serial.PARITY_NONE,
     stopbits = serial.STOPBITS_ONE,
@@ -47,20 +47,20 @@ pump_b = [23,22,21,20,19,18,17,16,31,30,29,28,27,26,25,24]
 pump_c = [7,6,5,4,3,2,1,0,15,14,13,12,11,10,9,8]
 
 
-def print_comando(string,channel,unit):
+def print_comando(string,channel):
     for i in range(8):
-        print("[SS{}]: {}".format(i+1, string[channel.index(i+1)]) + 
-              f" {unit}          " + 
-              "[SS{}]: {}".format(i+9, string[channel.index(i+9)]) +
-              f" {unit}")
+        print("[SS{}]:{}          [SS{}]:{}"
+        .format(i+1, string[channel.index(i+1)], i+9, string[channel.index(i+9)]))
     print()
 
 
-def print_resposta(string):
+def print_resposta(string,channel):
     inicio = string.find(",")
     fim = string.rfind(",")
 
-    return string[inicio+1:fim].split(",")
+    string = string[inicio+1:fim].split(",")
+    print_comando(string,channel)
+    return string
 
 
 def envia_string(message):
@@ -77,29 +77,18 @@ def le_string():
     return message
 
 
-'''def todos_inputs():
+def ss_inputs():
     inputs = []
 
     for i in range(16):
-        raw_input = input(f"> [SS{i+1}]: ")
-
-        if (raw_input in exit):
-            while (i < 16):
-                inputs += 0
-                i += 1
-            break
-        else:
-            inputs += raw_input
-
+        inputs += [input(f"> [SS{i+1}]: ")]
     print()
+
     return inputs
 
 
 def le_inputs():
     inputs = ss_inputs()
-    if (len(ss_inputs) != 16):
-        inputs = [0 for i in range(16)]
-
     print("Você digitou: ", inputs)
     
     enviar = input("> Era isso que gostaria de ter digitado? [y/n]\n> ")
@@ -128,29 +117,20 @@ def le_inputs():
             else:
                 return -1
 
-    return inputs'''
+    return inputs
 
 
 def le_comandos(inputs, channel):
-    print(inputs)
     comando = input("> Digite o número da Smart Sleeve que você deseja comandar, 'T' se for comandar todas, e 'X' para finalizar a inserção de comandos.\n> ")
     print()
 
     while (comando not in exit):
         if (comando in todos):
-            leitura = []
+            leitura = le_inputs()
 
             for i in range(16):
-                raw_input = input(f"> [SS{i+1}]: ")
+                inputs[channel.index(int(i+1))] = leitura[i] 
 
-                if (raw_input in exit):
-                    break
-                else:
-                    leitura += [raw_input]
-            print()
-
-            for i in range(len(leitura)):
-                inputs[channel.index(i+1)] = leitura[i] 
             break
 
         elif (comando in ss):
@@ -164,7 +144,8 @@ def le_comandos(inputs, channel):
             print("Comando inválido, reveja.")
             comando = input("> Digite o número da Smart Sleeve que você deseja comandar, 'T' se for comandar todas, e 'X' para finalizar a inserção de comandos.\n> ")
             print()
-    
+        
+    print("Inserção finalizada!\n")
     return inputs
 
 
@@ -184,22 +165,12 @@ def tipo_de_comando():
 
 #### CONTROLE DE AGITAÇÃO
 def stir():
-    stir_inputs = [round(float(status["stir"][i])*100/97, 2) for i in range(16)]
+    print("As ventoinhas estão atuando atualmente com os seguintes comandos:")
+    print_comando(status["stir"],channel2ss)
 
-    print("O status atual da agitação é de:")
-    print_comando(stir_inputs, channel2ss, '%')
-
-    print("Atualize a agitação desejada: ")
+    print("Atualize os valores para cada ventoinha.")
     stir_inputs = le_comandos(status["stir"],channel2ss)
-    print(stir_inputs)
-
-    stir_command = []
-    for input in stir_inputs:
-        stir_command += [int(input)*97/100 if input != "" else 0]
-    
-    print(stir_command)
-    # tipo = tipo_de_comando()
-    tipo = 'i'
+    tipo = tipo_de_comando()
 
     input_string = f"stir{tipo},"
     for i in range(16):
@@ -277,7 +248,7 @@ def temp():
         inicio = broadcast.find(",")
         fim = broadcast.rfind(",")
         broadcast = broadcast[inicio+1:fim].split(",")
-        string = [round(float(broadcast[i])*22/2048,1) for i in range(16)]
+        string = [(round(float(broadcast[i])*22/2048,1)) for i in range(16)]
         print_comando(string,channel2ss)
 
         acknowledge = input("> Gostaria de executar o comando? [y/n]\n> ")
@@ -411,7 +382,7 @@ def pump(ss2pump, liquido):
 
     echo_recebido = le_string()
     if (echo_recebido != ""):
-        print(f"Esse é o comando recebido e echoado pelo sistema: '{echo_recebido}'\nIsso se traduz em (segundos): ")
+        print(f"Esse é o comando recebido e echoado pelo sistema: '{echo_recebido}'\nIsso se traduz em: ")
         inicio = echo_recebido.find(",")
         fim = echo_recebido.rfind(",")
 
@@ -442,18 +413,16 @@ def pump(ss2pump, liquido):
 
 ################################ ALTERAÇÃO DE PARÂMETROS ################################
 def atualizar_parametro():
-    parametro = input("Qual parâmetro gostaria de alterar?\n\t1 - Agitação\n\t2 - Temperatura\n\t3 - Turbidez\n\t4 - Fluxo de fluidos\n(Digite 'X' pra sair)\n> ")
+    parametro = input("Qual parâmetro gostaria de alterar?\n1 - Agitação\n2 - Temperatura\n3 - Turbidez\n4 - Fuxo de fluidos\n> ")
     print()
+
+    while (parametro not in op_1 and parametro not in op_2 and parametro not in op_3 and parametro not in op_4):
+        parametro = input("Escolha dentre as opções possíveis:\n1 - Agitação\n2 - Temperatura\n3 - Turbidez\n4 - Fuxo de fluidos\n> ")
+        print()
 
     if (parametro in op_1):
         stir()
-    
-    elif (parametro in exit):
-        return False
 
-    return True
-        
-'''
     elif (parametro in op_2):
         temp()
 
@@ -485,13 +454,30 @@ def atualizar_parametro():
             pump(pump_b,'B')
 
         else:
-            pump(pump_c,'C')''' 
+            pump(pump_c,'C')
+        
 
 ######################################### MAIN #########################################
 print("\n ****** Inicializando a interface! ******\n")
-interagindo = True
+while True:
+    atualizar = input("> Gostaria de atualizar algum parâmetro? [y/n]\n> ")
+    print()
 
-while interagindo:
-    interagindo = atualizar_parametro()
+    while (atualizar not in yes and atualizar not in no):
+        atualizar = input("> Responda com [y/n]\n> ")
+        print()
 
-print("\n ****** Encerrando a interface. Volte logo! ******\n")
+    if (atualizar in no):
+        encerrar = input("> Podemos encerrar a interação? [y/n]\n> ")
+        print()
+
+        while (encerrar not in yes and encerrar not in no):
+            encerrar = input("> Responda com [y/n]\n> ")
+            print()
+        
+        if (encerrar in yes):
+            print("\n ****** Encerrando a iteração. Volte logo! ******\n")
+            break
+
+    elif (atualizar in yes):
+        atualizar_parametro()
