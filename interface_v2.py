@@ -2,10 +2,10 @@ import serial
 import time
 
 status = {
-    "stir": [16,15,8,7,14,13,6,5,12,11,4,3,10,9,2,1], #[8,8,8,8,8,8,8,8,8,8,8,3,8,8,8,8],
-    "temp": [4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095],
+    "stir": [16,15,8,7,14,13,6,5,12,11,4,3,10,9,2,1], #[8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8],
+    "temp": [16,15,8,7,14,13,6,5,12,11,4,3,10,9,2,1], #[4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095],
     "od_135": 1000,
-    "od_led": [4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095],
+    "od_led": [16,15,8,7,14,13,6,5,12,11,4,3,10,9,2,1], #[4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095],
     "pump": [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47] #[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 }
 
@@ -31,7 +31,7 @@ ss = ['1',' 1','1 ','2',' 2','2 ','3',' 3','3 ','4',' 4','4 ','5',' 5','5 ','6',
       '10',' 10','10 ','11',' 11','11 ','12',' 12','12 ','12',' 12','12 ','13',' 13','13 ','14',' 14','14 ','15',' 15','15 ','16',' 16','16 ']
 
 comm = serial.Serial(
-    port = '/dev/serial0',
+    port = '/dev/ttyACM0',
     baudrate = 9600,
     parity = serial.PARITY_NONE,
     stopbits = serial.STOPBITS_ONE,
@@ -54,13 +54,11 @@ def print_comando(string,channel):
     print()
 
 
-def print_resposta(string,channel):
+def print_resposta(string):
     inicio = string.find(",")
     fim = string.rfind(",")
 
-    string = string[inicio+1:fim].split(",")
-    print_comando(string,channel)
-    return string
+    return string[inicio+1:fim].split(",")
 
 
 def envia_string(message):
@@ -166,7 +164,7 @@ def tipo_de_comando():
 #### CONTROLE DE AGITAÇÃO
 def stir():
     print("As ventoinhas estão atuando atualmente com os seguintes comandos:")
-    print_comando(status["stir"],channel2ss)
+    print_comando(status["stir"], channel2ss)
 
     print("Atualize os valores para cada ventoinha.")
     stir_inputs = le_comandos(status["stir"],channel2ss)
@@ -182,8 +180,12 @@ def stir():
 
     echo_recebido = le_string()
     if (echo_recebido != ""):
-        print(f"Esse é o comando recebido e echoado pelo sistema: '{echo_recebido}'\nIsso se traduz em: ")
-        echo_recebido = print_resposta(echo_recebido,channel2ss)
+        print(f"Esse é o comando recebido e echoado pelo sistema: '{echo_recebido}'\nIsso se traduz em (%): ")
+        inicio = echo_recebido.find(",")
+        fim = echo_recebido.rfind(",")
+        echo_recebido = echo_recebido[inicio+1:fim].split(",")
+        string = [round(float(echo_recebido[i])*100/90,2) for i in range(16)]
+        print_comando(string,channel2ss)
 
         acknowledge = input("> Gostaria de executá-lo? [y/n]\n> ")
         print()
@@ -229,11 +231,21 @@ def temp():
                         broadcast = texto_recebido[i+3:]
                         break
                     
-        print(f"Esse é o comando recebido e echoado pelo sistema: '{echo}'\nIsso se traduz em: ")
-        echo = print_resposta(echo,channel2ss)
+        print(f"Esse é o comando recebido e echoado pelo sistema: '{echo}'\nIsso se traduz em (%): ")
+        #echo = print_resposta(echo,channel2ss)
+        inicio = echo.find(",")
+        fim = echo.rfind(",")
+        echo = echo[inicio+1:fim].split(",")
+        string = [round(float(echo[i])*100/4095,2) for i in range(16)]
+        print_comando(string,channel2ss)
 
-        print(f"O estado atual do sistema é: '{broadcast}'\nIsso se traduz em: ")
-        broadcast = print_resposta(broadcast,channel2ss)
+        print(f"O estado atual do sistema é: '{broadcast}'\nIsso se traduz em (°C): ")
+        # broadcast = print_resposta(broadcast,channel2ss)
+        inicio = broadcast.find(",")
+        fim = broadcast.rfind(",")
+        broadcast = broadcast[inicio+1:fim].split(",")
+        string = [round(float(broadcast[i])*22/2048,1) for i in range(16)]
+        print_comando(string,channel2ss)
 
         acknowledge = input("> Gostaria de executar o comando? [y/n]\n> ")
         print()
@@ -366,7 +378,7 @@ def pump(ss2pump, liquido):
 
     echo_recebido = le_string()
     if (echo_recebido != ""):
-        print(f"Esse é o comando recebido e echoado pelo sistema: '{echo_recebido}'\nIsso se traduz em: ")
+        print(f"Esse é o comando recebido e echoado pelo sistema: '{echo_recebido}'\nIsso se traduz em (segundos): ")
         inicio = echo_recebido.find(",")
         fim = echo_recebido.rfind(",")
 
@@ -397,11 +409,11 @@ def pump(ss2pump, liquido):
 
 ################################ ALTERAÇÃO DE PARÂMETROS ################################
 def atualizar_parametro():
-    parametro = input("Qual parâmetro gostaria de alterar?\n1 - Agitação\n2 - Temperatura\n3 - Turbidez\n4 - Fuxo de fluidos\n> ")
+    parametro = input("Qual parâmetro gostaria de alterar?\n1 - Agitação\n2 - Temperatura\n3 - Turbidez\n4 - Fluxo de fluidos\n> ")
     print()
 
     while (parametro not in op_1 and parametro not in op_2 and parametro not in op_3 and parametro not in op_4):
-        parametro = input("Escolha dentre as opções possíveis:\n1 - Agitação\n2 - Temperatura\n3 - Turbidez\n4 - Fuxo de fluidos\n> ")
+        parametro = input("Escolha dentre as opções possíveis:\n1 - Agitação\n2 - Temperatura\n3 - Turbidez\n4 - Fluxo de fluidos\n> ")
         print()
 
     if (parametro in op_1):
