@@ -216,7 +216,7 @@ def stir():
         fim = echo_recebido.rfind(",")
         echo_recebido = echo_recebido[inicio+1:fim].split(",")
         string = [round(float(echo_recebido[i])*100/90,2) for i in range(16)]
-        print_comando(string,channel2ss)
+        print_comando(string,channel2ss,'%')
 
         #echo_recebido = print_resposta(echo_recebido,channel2ss)
 
