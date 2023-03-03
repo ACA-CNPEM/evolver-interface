@@ -31,7 +31,7 @@ ss = ['1',' 1','1 ','2',' 2','2 ','3',' 3','3 ','4',' 4','4 ','5',' 5','5 ','6',
       '10',' 10','10 ','11',' 11','11 ','12',' 12','12 ','12',' 12','12 ','13',' 13','13 ','14',' 14','14 ','15',' 15','15 ','16',' 16','16 ']
 
 comm = serial.Serial(
-    port = '/dev/ttyACM0',
+    port = '/dev/serial0',
     baudrate = 9600,
     parity = serial.PARITY_NONE,
     stopbits = serial.STOPBITS_ONE,
@@ -216,7 +216,7 @@ def stir():
         fim = echo_recebido.rfind(",")
         echo_recebido = echo_recebido[inicio+1:fim].split(",")
         string = [round(float(echo_recebido[i])*100/90,2) for i in range(16)]
-        print_comando(string,channel2ss)
+        print_comando(string,channel2ss,'%')
 
         #echo_recebido = print_resposta(echo_recebido,channel2ss)
 

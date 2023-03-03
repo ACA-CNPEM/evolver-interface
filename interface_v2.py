@@ -183,13 +183,7 @@ def stir():
     echo_recebido = le_string()
     if (echo_recebido != ""):
         print(f"Esse é o comando recebido e echoado pelo sistema: '{echo_recebido}'\nIsso se traduz em (%): ")
-        inicio = echo_recebido.find(",")
-        fim = echo_recebido.rfind(",")
-        echo_recebido = echo_recebido[inicio+1:fim].split(",")
-        string = [round(float(echo_recebido[i])*100/90,2) for i in range(16)]
-        print_comando(string,channel2ss)
-
-        #echo_recebido = print_resposta(echo_recebido,channel2ss)
+        echo_recebido = print_resposta(echo_recebido,channel2ss)
 
         acknowledge = input("> Gostaria de executá-lo? [y/n]\n> ")
         print()
@@ -236,20 +230,10 @@ def temp():
                         break
                     
         print(f"Esse é o comando recebido e echoado pelo sistema: '{echo}'\nIsso se traduz em (%): ")
-        #echo = print_resposta(echo,channel2ss)
-        inicio = echo.find(",")
-        fim = echo.rfind(",")
-        echo = echo[inicio+1:fim].split(",")
-        string = [round(float(echo[i])*100/4095,2) for i in range(16)]
-        print_comando(string,channel2ss)
+        echo = print_resposta(echo,channel2ss)
 
         print(f"O estado atual do sistema é: '{broadcast}'\nIsso se traduz em (°C): ")
-        # broadcast = print_resposta(broadcast,channel2ss)
-        inicio = broadcast.find(",")
-        fim = broadcast.rfind(",")
-        broadcast = broadcast[inicio+1:fim].split(",")
-        string = [(round(float(broadcast[i])*22/2048,1)) for i in range(16)]
-        print_comando(string,channel2ss)
+        broadcast = print_resposta(broadcast,channel2ss)
 
         acknowledge = input("> Gostaria de executar o comando? [y/n]\n> ")
         print()
@@ -401,7 +385,7 @@ def pump(ss2pump, liquido):
             print("Executando...\n")
 
             for i in range(16):
-                if (echo_recebido[i] != '--'):
+                if ('|' in echo_recebido[i]):
                     status["pump"][ss2pump[i]] = echo_recebido[i]            
 
     else:

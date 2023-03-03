@@ -1,0 +1,1 @@
+ss_ativas = 8
