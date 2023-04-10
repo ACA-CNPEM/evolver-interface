@@ -2,10 +2,11 @@ import serial
 import time
 import csv
 import os
-
 import yaml
 from yaml.loader import SafeLoader
 
+
+# Log variables
 dia = 1
 id = 'log_' + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime())
 
@@ -13,6 +14,7 @@ if not os.path.exists(f'logs/{id}/raw'):
     os.makedirs(f'logs/{id}/raw')
 
 
+# Configuration variables
 with open('configuration.yaml') as configuration_file:
     config = yaml.load(configuration_file, Loader=SafeLoader)
     commands = config[f'dia{dia}']
@@ -20,6 +22,7 @@ with open('configuration.yaml') as configuration_file:
     smart_sleeves = config['smart_sleeves']
 
 
+# Serial communication variable
 serial_channel = serial.Serial(
     port = '/dev/serial0',
     baudrate = 9600,
@@ -30,6 +33,55 @@ serial_channel = serial.Serial(
 )
 
 
+# Function that organizes raw logs
+def organize_logs(name):
+    columns = ['timestamp', 'module']
+    for i in range(8):
+            columns += [f'SS{i+1}']
+
+    with open(f'logs/{name}/raw/log_inicial.csv', 'r') as log_file:
+        log_reader = csv.reader(log_file, delimiter=',')
+        raw_data = [row for row in log_reader]
+        
+    with open(f'logs/{name}/log_inicial.csv', 'a') as log_file:
+        log_writer = csv.writer(log_file)
+        log_writer.write(columns)
+
+        for line in raw_data:
+            echo_string = line[2].split(',')
+
+            module = echo_string[0][0:(len(echo_string[0]) - 1)]
+            data = {
+                        'module': module, 
+                        'timestamp': line[0]
+                        }
+                
+            echo_string = echo_string[1:(len(echo_string) - 1)]
+                
+            if module in ['temp','od_135']:
+                broadcast_string = line[3].split(',')
+                broadcast_string = broadcast_string[1:(len(broadcast_string) - 1)]
+
+            for i in range(8):
+                if module == 'temp':
+                    data[f'SS{i+1}'] = f"{broadcast_string[smart_sleeves[f'ss{i+1}']]} ({echo_string[smart_sleeves[f'ss{i+1}']]})"
+
+                elif module == 'od_135':
+                    data[f'SS{i+1}'] = f"{broadcast_string[smart_sleeves[f'ss{i+1}']]} ({echo_string})"
+
+                elif module == 'pump':
+                    print('pump')
+                    #data[f'SS{i+1}'] = f"{broadcast_string[smart_sleeves[f'ss{i+1}']]} ({echo_string})"
+                    #data[f'SS{i+1}'] = f"{broadcast_string[smart_sleeves[f'ss{i+1}']]} ({echo_string})"
+                    #data[f'SS{i+1}'] = f"{broadcast_string[smart_sleeves[f'ss{i+1}']]} ({echo_string})"
+
+                else:
+                    data[f'SS{i+1}'] = echo_string[smart_sleeves[f'ss{i+1}']]
+                
+        log_writer.writerow(data)
+
+
+# Function that sends messages to evolver and saves them to log
 def send_messages(file_name, command, channel):
     channel.write(str.encode(command))
     time.sleep(1)
@@ -57,67 +109,68 @@ def send_messages(file_name, command, channel):
             input_string = ""
 
 
+# Initializing experiment
 for module in commands.keys():
-    send_messages(f'log_inicial', commands[module], serial_channel)
+    if type(commands[module]) == dict:
+        send_messages(f'log_inicial', commands[module]['status1'], serial_channel)
+    else:
+        send_messages(f'log_inicial', commands[module], serial_channel)
 
+
+# Acknowledging commands
 '''for module in commands.keys():
     print(acknoledgment[module])
     serial_channel.write(str.encode(acknoledgment[module]))'''
 
 
+cycle = 0
+temp_command = commands['temp'] if type(commands['temp']) != dict else commands['temp']['status1']
+
+# Experiment loop
 while True:
-    try:
-        send_messages(f'log_temp', commands['temp'], serial_channel)
-        send_messages(f'log_od', commands['od_135'], serial_channel)
-        time.sleep(10)
+    if dia == 3:
+        if cycle == 720: # 10h - 12h
+            temp_command = commands['temp']['status2']
 
-    except KeyboardInterrupt:
+            send_messages(f'log_inicial', commands['stir']['status2'], serial_channel)
+            send_messages(f'log_inicial', commands['temp']['status2'], serial_channel)
 
-        columns = ['timestamp', 'module']
-        for i in range(8):
-            columns += [f'SS{i+1}']
+            serial_channel.write(str.encode(acknoledgment['stir']))
+            serial_channel.write(str.encode(acknoledgment['temp']))
 
-        with open(f'logs/{id}/raw/log_inicial.csv', 'r') as log_file:
-            log_reader = csv.reader(log_file, delimiter=',')
-            raw_data = [row for row in log_reader]
+        elif cycle == 1440: # 12h - 14h
+            temp_command = commands['temp']['status3']
+
+            send_messages(f'log_inicial', commands['stir']['status1'], serial_channel)
+            send_messages(f'log_inicial', commands['temp']['status3'], serial_channel)
+            send_messages(f'log_inicial', commands['pump']['status2'], serial_channel)
+
+            serial_channel.write(str.encode(acknoledgment['stir']))
+            serial_channel.write(str.encode(acknoledgment['temp']))
+            serial_channel.write(str.encode(acknoledgment['pump']))
+
+        else: # cycle == 2160: 14h - 16h
+            temp_command = commands['temp']['status1']
+
+            send_messages(f'log_inicial', commands['stir']['status2'], serial_channel)
+            send_messages(f'log_inicial', commands['temp']['status1'], serial_channel)
+
+            serial_channel.write(str.encode(acknoledgment['stir']))
+            serial_channel.write(str.encode(acknoledgment['temp']))
         
-        with open(f'logs/{id}/log_inicial.csv', 'a') as log_file:
-            log_writer = csv.writer(log_file)
-            log_writer.write(columns)
+    else: # dia == 4
+        if cycle == 1440:
+            send_messages(f'log_inicial', commands['pump']['status2'], serial_channel)
+            serial_channel.write(str.encode(acknoledgment['pump']))
 
-            for line in raw_data:
-                echo_string = line[2].split(',')
+    send_messages(f'log_temp', temp_command, serial_channel)
+    send_messages(f'log_od', commands['od_135'], serial_channel)
 
-                module = echo_string[0][0:(len(echo_string[0]) - 1)]
-                data = {
-                        'Module': module, 
-                        'Timestamp': line[0]
-                        }
-                
-                echo_string = echo_string[1:(len(echo_string) - 1)]
-                
-                if module in ['temp','od_135']:
-                    broadcast_string = line[3].split(',')
-                    broadcast_string = broadcast_string[1:(len(broadcast_string) - 1)]
+    time.sleep(10)
+    cycle += 1
 
-                for i in range(8):
-                    if module == 'temp':
-                        data[f'SS{i+1}'] = f"{broadcast_string[smart_sleeves[f'ss{i+1}']]} ({echo_string[smart_sleeves[f'ss{i+1}']]})"
-
-                    elif module == 'od_135':
-                        data[f'SS{i+1}'] = f"{broadcast_string[smart_sleeves[f'ss{i+1}']]} ({echo_string})"
-
-                    elif module == 'pump':
-                        print('pump')
-                        '''data[f'SS{i+1}'] = f"{broadcast_string[smart_sleeves[f'ss{i+1}']]} ({echo_string})"
-                        data[f'SS{i+1}'] = f"{broadcast_string[smart_sleeves[f'ss{i+1}']]} ({echo_string})"
-                        data[f'SS{i+1}'] = f"{broadcast_string[smart_sleeves[f'ss{i+1}']]} ({echo_string})"'''
-
-                    else:
-                        data[f'SS{i+1}'] = echo_string[smart_sleeves[f'ss{i+1}']]
-                
-            log_writer.writerow(data)
-            
+    if cycle >= 2880: #8h funcionando, fim do experimento
+        organize_logs(id)
         break
 
 
