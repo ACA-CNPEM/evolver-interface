@@ -7,7 +7,7 @@ from yaml.loader import SafeLoader
 
 
 # Log variables
-dia = 3
+dia = 1
 id = 'log_' + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime())
 
 if not os.path.exists(f'logs/{dia}/{id}/raw'):
@@ -81,6 +81,7 @@ def organize_logs(name):
         log_writer.writerow(data)
 '''
 
+
 # Function that sends messages to evolver and saves them to log
 def send_messages(file_name, command, channel):
     channel.write(str.encode(command))
@@ -130,9 +131,9 @@ with open(f'logs/{dia}/{id}/raw/log_od.csv', 'a') as log_file:
 
 
 # Acknowledging commands
-'''for module in commands.keys():
+for module in commands.keys():
     print(acknoledgment[module])
-    serial_channel.write(str.encode(acknoledgment[module]))'''
+    serial_channel.write(str.encode(acknoledgment[module]))
 
 
 cycle = 0
@@ -147,8 +148,8 @@ while True:
             send_messages(f'log_inicial', commands['stir']['status2'], serial_channel)
             send_messages(f'log_inicial', temp_command, serial_channel)
 
-            #serial_channel.write(str.encode(acknoledgment['stir']))
-            #serial_channel.write(str.encode(acknoledgment['temp']))
+            serial_channel.write(str.encode(acknoledgment['stir']))
+            serial_channel.write(str.encode(acknoledgment['temp']))
 
         elif cycle == 1440: # 12h - 14h
             temp_command = commands['temp']['status3']
@@ -157,9 +158,9 @@ while True:
             send_messages(f'log_inicial', temp_command, serial_channel)
             send_messages(f'log_inicial', commands['pump']['status2'], serial_channel)
 
-            #serial_channel.write(str.encode(acknoledgment['stir']))
-            #serial_channel.write(str.encode(acknoledgment['temp']))
-            #serial_channel.write(str.encode(acknoledgment['pump']))
+            serial_channel.write(str.encode(acknoledgment['stir']))
+            serial_channel.write(str.encode(acknoledgment['temp']))
+            serial_channel.write(str.encode(acknoledgment['pump']))
 
         elif cycle == 2160: # 14h - 16h
             temp_command = commands['temp']['status1']
@@ -167,82 +168,20 @@ while True:
             send_messages(f'log_inicial', commands['stir']['status2'], serial_channel)
             send_messages(f'log_inicial', temp_command, serial_channel)
 
-            #serial_channel.write(str.encode(acknoledgment['stir']))
-            #serial_channel.write(str.encode(acknoledgment['temp']))
+            serial_channel.write(str.encode(acknoledgment['stir']))
+            serial_channel.write(str.encode(acknoledgment['temp']))
         
     elif dia == 4:
         if cycle == 1440:
             send_messages(f'log_inicial', commands['pump']['status2'], serial_channel)
-            #serial_channel.write(str.encode(acknoledgment['pump']))
+            serial_channel.write(str.encode(acknoledgment['pump']))
 
     send_messages(f'log_temp', temp_command, serial_channel)
     send_messages(f'log_od', commands['od_135'], serial_channel)
 
     time.sleep(1)
-    cycle += 1
+    cycle += 180
 
     if cycle >= 2880: # 8h funcionando, fim do experimento
         #organize_logs(f"{dia}/{id}")
         break
-
-
-
-
-
-        
-
-
-
-
-
-
-
-#'pumpi,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,--,_!')
-'''def send_stir():
-    i = 0
-    while True:
-        si.serial_event(f'stiri,{i},{i},{i},{i},{i},{i},{i},{i},{i},{i},{i},{i},{i},{i},{i},{i},_!')
-        i += 1
-
-def send_od_led():
-    i = 0
-    while True:
-        si.serial_event(f'od_ledi,{i},{i},{i},{i},{i},{i},{i},{i},{i},{i},{i},{i},{i},{i},{i},{i},_!')
-        i += 1
-
-prc = mp.Process(target=send_stir, args=[])
-prc2 = mp.Process(target=send_od_led, args=[])
-
-prc.start()
-prc2.start()
-
-si.serial_event('stiri,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!')
-si.serial_event('stiri,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!')
-si.serial_event('od_ledi,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!')'''
-
-
-
-
-
-
-
-
-
-
-
-'''def send_command():
-    global modules, communication, serial_channel
-    string_command = ""
-
-    for module in modules.keys():
-        string_command = f"{module}i,"
-
-        for i in modules[module]:
-            string_command += f"{i},"
-        
-        string_command += communication['outgoing_end']
-    
-        print(string_command)
-    #serial_channel.write(str.encode(string_command))
-
-send_command()'''
