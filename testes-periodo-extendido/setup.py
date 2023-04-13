@@ -7,7 +7,7 @@ from yaml.loader import SafeLoader
 
 
 # Log variables
-dia = 1
+dia = 4
 id = 'log_' + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime())
 
 if not os.path.exists(f'logs/{dia}/{id}/raw'):
@@ -24,7 +24,7 @@ with open('configuration.yaml') as configuration_file:
 
 # Serial communication variable
 serial_channel = serial.Serial(
-    port = '/dev/serial0',
+    port = '/dev/ttyUSB0',
     baudrate = 9600,
     parity = serial.PARITY_NONE,
     stopbits = serial.STOPBITS_ONE,
@@ -33,8 +33,8 @@ serial_channel = serial.Serial(
 )
 
 
-'''# Function that organizes raw logs
-def organize_logs(name):
+# Function that organizes raw logs (not funcitonal)
+'''def organize_logs(name):
     columns = ['timestamp', 'module']
     for i in range(8):
             columns += [f'SS{i+1}']
@@ -45,7 +45,7 @@ def organize_logs(name):
         
     with open(f'logs/{name}/log_inicial.csv', 'a') as log_file:
         log_writer = csv.writer(log_file)
-        log_writer.write(columns)
+        log_writer.writerow(columns)
 
         for line in raw_data:
             echo_string = line[2].split(',')
@@ -78,8 +78,8 @@ def organize_logs(name):
                 else:
                     data[f'SS{i+1}'] = echo_string[smart_sleeves[f'ss{i+1}']]
                 
-        log_writer.writerow(data)
-'''
+        log_writer.writerow(data)'''
+
 
 
 # Function that sends messages to evolver and saves them to log
@@ -96,17 +96,27 @@ def send_messages(file_name, command, channel):
 
         if (input_string.rfind('end') != -1):
             print(input_string)
+            input_string = input_string.split(',')
+            module = input_string[0]
+
+            log_data = input_string[1:(len(input_string)-1)]
+            log_data.insert(0, received_time)
+            log_data.insert(1, module)
 
             with open(f'logs/{dia}/{id}/raw/{file_name}.csv', 'a') as log_file:
-                input_string = input_string.split(',')
-                module = input_string[0]
-                
-                log_data = input_string[1:(len(input_string)-1)]
-                log_data.insert(0, received_time)
-                log_data.insert(1, module)
-
                 log_writer = csv.writer(log_file, delimiter=',')
                 log_writer.writerow(log_data)
+            
+            if file_name == 'log_inicial':
+                if module == 'tempb':
+                    with open(f'logs/{dia}/{id}/raw/log_temp.csv', 'a') as log_file:
+                        log_writer = csv.writer(log_file, delimiter=',')
+                        log_writer.writerow(log_data)
+
+                elif module == 'od_135b':
+                    with open(f'logs/{dia}/{id}/raw/log_od.csv', 'a') as log_file:
+                        log_writer = csv.writer(log_file, delimiter=',')
+                        log_writer.writerow(log_data)
 
             input_string = ""
 
@@ -114,74 +124,49 @@ def send_messages(file_name, command, channel):
 # Initializing experiment
 for module in commands.keys():
     command_line = commands[module]['status1'] if type(commands[module]) == dict else commands[module]
+
     send_messages(f'log_inicial', command_line, serial_channel)
+    #serial_channel.write(str.encode(acknoledgment[module]))
 
-with open(f'logs/{dia}/{id}/raw/log_inicial.csv', 'r') as log_file:
-    log_reader = csv.reader(log_file, delimiter=',')
-    raw_data = [row for row in log_reader]
-
-with open(f'logs/{dia}/{id}/raw/log_temp.csv', 'a') as log_file:
-    log_writer = csv.writer(log_file, delimiter=',')
-    log_writer.writerow(raw_data[1])
-    log_writer.writerow(raw_data[2])
-
-with open(f'logs/{dia}/{id}/raw/log_od.csv', 'a') as log_file:
-    log_writer = csv.writer(log_file, delimiter=',')
-    log_writer.writerow(raw_data[4])
-
-
-# Acknowledging commands
-for module in commands.keys():
-    print(acknoledgment[module])
-    serial_channel.write(str.encode(acknoledgment[module]))
-
-
-cycle = 0
-temp_command = commands['temp'] if type(commands['temp']) != dict else commands['temp']['status1']
 
 # Experiment loop
+cycle = 0
+
 while True:
     if dia == 3:
         if cycle == 720: # 10h - 12h
-            temp_command = commands['temp']['status2']
-
             send_messages(f'log_inicial', commands['stir']['status2'], serial_channel)
-            send_messages(f'log_inicial', temp_command, serial_channel)
+            send_messages(f'log_inicial', commands['temp']['status2'], serial_channel)
 
-            serial_channel.write(str.encode(acknoledgment['stir']))
-            serial_channel.write(str.encode(acknoledgment['temp']))
+            #serial_channel.write(str.encode(acknoledgment['stir']))
+            #serial_channel.write(str.encode(acknoledgment['temp']))
 
         elif cycle == 1440: # 12h - 14h
-            temp_command = commands['temp']['status3']
-
             send_messages(f'log_inicial', commands['stir']['status1'], serial_channel)
-            send_messages(f'log_inicial', temp_command, serial_channel)
+            send_messages(f'log_inicial', commands['temp']['status3'], serial_channel)
             send_messages(f'log_inicial', commands['pump']['status2'], serial_channel)
 
-            serial_channel.write(str.encode(acknoledgment['stir']))
-            serial_channel.write(str.encode(acknoledgment['temp']))
-            serial_channel.write(str.encode(acknoledgment['pump']))
+            #serial_channel.write(str.encode(acknoledgment['stir']))
+            #serial_channel.write(str.encode(acknoledgment['temp']))
+            #serial_channel.write(str.encode(acknoledgment['pump']))
 
         elif cycle == 2160: # 14h - 16h
-            temp_command = commands['temp']['status1']
-
             send_messages(f'log_inicial', commands['stir']['status2'], serial_channel)
-            send_messages(f'log_inicial', temp_command, serial_channel)
+            send_messages(f'log_inicial', commands['temp']['status1'], serial_channel)
 
-            serial_channel.write(str.encode(acknoledgment['stir']))
-            serial_channel.write(str.encode(acknoledgment['temp']))
+            #serial_channel.write(str.encode(acknoledgment['stir']))
+            #serial_channel.write(str.encode(acknoledgment['temp']))
         
     elif dia == 4:
         if cycle == 1440:
             send_messages(f'log_inicial', commands['pump']['status2'], serial_channel)
-            serial_channel.write(str.encode(acknoledgment['pump']))
+            #serial_channel.write(str.encode(acknoledgment['pump']))
 
-    send_messages(f'log_temp', temp_command, serial_channel)
-    send_messages(f'log_od', commands['od_135'], serial_channel)
+    send_messages(f'log_temp', 'templ,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!', serial_channel)
+    send_messages(f'log_od', 'od_135l,0,_!', serial_channel)
 
     time.sleep(1)
     cycle += 180
 
     if cycle >= 2880: # 8h funcionando, fim do experimento
-        #organize_logs(f"{dia}/{id}")
         break
