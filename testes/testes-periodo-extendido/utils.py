@@ -11,6 +11,7 @@ AREA_2_STERADIAN = (r*r*R)/(2*(R - d))
 def ad_stir(commands): # AD -> %
     return [100*value/98 for value in commands]
 
+
 def stir_ad(commands): # % -> AD
     return [round(98*value/100) for value in commands]
 
@@ -25,6 +26,7 @@ def ad_temp(commands): # AD -> °C
         command_list += [1/((1/298.15) + resistance_factor) - 273.15]
 
     return command_list
+
 
 def temp_ad(commands): # °C -> AD
     command_list = []
@@ -68,6 +70,7 @@ def ad_od_135(commands, led_commands): # AD -> [0,1]
         command_list += [(irradiance*AREA_2_STERADIAN)/led_commands[i]]
 
     return command_list
+
 
 def od_135_ad(commands, led_commands): # [0,1] -> AD
     command_list = []
