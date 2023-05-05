@@ -95,7 +95,10 @@ def plot(name):
         plt.plot(x_data, y_data, label=f'SS{i+1}')
 
     plt.title(f"{name.split('/')[1]}")
+    plt.xlabel('LED emission (AD)')
+    plt.ylabel('PT detector (AD)')
     plt.legend()
+
     plt.savefig(f'{name}/all.png')
     plt.show()
 
@@ -105,6 +108,9 @@ def plot(name):
 
         plt.plot(x_data, y_data)
         plt.title(f"SS{i+1}")
+        plt.xlabel('LED emission (AD)')
+        plt.ylabel('PT detector (AD)')
+
         plt.savefig(f'{name}/SSs/SS{i}.png')
         plt.show()
     
@@ -113,7 +119,7 @@ def plot(name):
 
 
 if __name__ == "__main__":
-    log_path = 'logs/log_04-05-23_10:08:17'
+    log_path = 'logs/log_05-05-23_09:01:01'
 
     if not os.path.exists(f'{log_path}/SSs'):
         os.makedirs(f'{log_path}/SSs')

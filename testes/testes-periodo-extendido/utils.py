@@ -21,6 +21,8 @@ def ad_temp(commands): # AD -> °C
     command_list = []
 
     for value in commands:
+        value = value if value <= 2450 else 2450 # limitando a 15°C
+
         voltage = 3.3*value/4095 # V
         resistance_factor = math.log(voltage/(3.3 - voltage)) * 1/BETA # 1/Kelvin
         command_list += [1/((1/298.15) + resistance_factor) - 273.15]
@@ -84,8 +86,9 @@ def od_135_ad(commands, led_commands): # [0,1] -> AD
     return command_list
 
 
-print(ad_od_135([2048],[4095]))
-print(od_135_ad([0.035717642755589626],[4095]))
+#print(ad_od_135([2048],[4095]))
+#print(od_135_ad([0.035717642755589626],[4095]))
+#print(temp_ad([15]), ad_temp([2450]))
 
 '''def input2commands(input_string):
     
