@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 BETA = 3435
 
@@ -9,10 +10,12 @@ AREA_2_STERADIAN = (r*r*R)/(2*(R - d))
 
 
 def ad_stir(commands): # AD -> %
+    commands = np.clip(np.array(commands), 0, 98)
     return [100*value/98 for value in commands]
 
 
 def stir_ad(commands): # % -> AD
+    commands = np.clip(np.array(commands), 0, 100)
     return [round(98*value/100) for value in commands]
 
 
@@ -20,9 +23,10 @@ def stir_ad(commands): # % -> AD
 def ad_temp(commands): # AD -> °C
     command_list = []
 
-    for value in commands:
-        value = value if value <= 2450 else 2450 # limitando a 15°C
+    # limitando entre cerca de 15°C a 60°C
+    commands = np.clip(np.array(commands), 940, 2450)
 
+    for value in commands:
         voltage = 3.3*value/4095 # V
         resistance_factor = math.log(voltage/(3.3 - voltage)) * 1/BETA # 1/Kelvin
         command_list += [1/((1/298.15) + resistance_factor) - 273.15]
@@ -32,6 +36,9 @@ def ad_temp(commands): # AD -> °C
 
 def temp_ad(commands): # °C -> AD
     command_list = []
+
+    # limitando entre cerca de 15°C a 60°C
+    commands = np.clip(np.array(commands), 15, 60)
 
     for value in commands:
         exponential_factor = -BETA * (1/(value + 273.15) - 1/298.15)
@@ -44,6 +51,9 @@ def temp_ad(commands): # °C -> AD
 def ad_od_led(commands): # AD -> mW/sr
     command_list = []
 
+    # limitando entre completamente desligado ou ligado
+    commands = np.clip(np.array(commands), 0, 4095)
+
     for value in commands:
         current = 120 * value/4095 # mA
         command_list += [0.8125*current + 3.75]
@@ -54,6 +64,9 @@ def ad_od_led(commands): # AD -> mW/sr
 def od_led_ad(commands): # mW/sr -> AD
     command_list = []
 
+    # limitando entre completamente desligado ou ligado
+    commands = np.clip(np.array(commands), 3.75, 101.25)
+
     for value in commands:
         current = (value - 3.75)/0.8125 # mA
         command_list += [round(4095*current/120)]
@@ -61,6 +74,12 @@ def od_led_ad(commands): # mW/sr -> AD
     return command_list
 
 
+#print(ad_od_135([2048],[4095]))
+#print(od_135_ad([0.035717642755589626],[4095]))
+#print(ad_temp(np.array([5])))
+
+'''
+    UNDER CONSTRUCTION
 def ad_od_135(commands, led_commands): # AD -> [0,1]
     command_list = []
     led_commands = ad_od_led(led_commands)
@@ -84,11 +103,7 @@ def od_135_ad(commands, led_commands): # [0,1] -> AD
         command_list += [round(4095 - current*409500/3.3)]
 
     return command_list
-
-
-#print(ad_od_135([2048],[4095]))
-#print(od_135_ad([0.035717642755589626],[4095]))
-#print(temp_ad([15]), ad_temp([2450]))
+'''
 
 '''def input2commands(input_string):
     

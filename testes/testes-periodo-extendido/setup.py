@@ -4,14 +4,16 @@ import csv
 import os
 import yaml
 from yaml.loader import SafeLoader
+import socket
 
 
 # Log variables
 dia = 4
 id = 'log_' + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime())
+unit = socket.gethostname()
 
-if not os.path.exists(f'logs/{dia}/{id}/raw'):
-    os.makedirs(f'logs/{dia}/{id}/raw')
+if not os.path.exists(f'logs/{unit}/{dia}/{id}/raw'):
+    os.makedirs(f'logs/{unit}/{dia}/{id}/raw')
 
 
 # Configuration variables
@@ -53,18 +55,18 @@ def send_messages(file_name, command, channel):
             log_data.insert(0, received_time)
             log_data.insert(1, module)
 
-            with open(f'logs/{dia}/{id}/raw/{file_name}.csv', 'a') as log_file:
+            with open(f'logs/{unit}/{dia}/{id}/raw/{file_name}.csv', 'a') as log_file:
                 log_writer = csv.writer(log_file, delimiter=',')
                 log_writer.writerow(log_data)
             
             if file_name == 'log_inicial':
                 if module == 'tempb':
-                    with open(f'logs/{dia}/{id}/raw/log_temp.csv', 'a') as log_file:
+                    with open(f'logs/{unit}/{dia}/{id}/raw/log_temp.csv', 'a') as log_file:
                         log_writer = csv.writer(log_file, delimiter=',')
                         log_writer.writerow(log_data)
 
                 elif module == 'od_135b':
-                    with open(f'logs/{dia}/{id}/raw/log_od.csv', 'a') as log_file:
+                    with open(f'logs/{unit}/{dia}/{id}/raw/log_od.csv', 'a') as log_file:
                         log_writer = csv.writer(log_file, delimiter=',')
                         log_writer.writerow(log_data)
 

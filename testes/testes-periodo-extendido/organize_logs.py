@@ -1,18 +1,17 @@
 import os
 import csv
+import socket
 import matplotlib.pyplot as plt
+from utils import *
 
-
-
-log_path = 'logs/4/log_19-04-23_09:14:40'
+log_path = 'logs/EVOLVER-1/4/log_19-04-23_09:14:40'
 ss2channel = [15,14,11,10,7,6,3,2,13,12,9,8,5,4,1,0]
 pump2ss =[[39,38,37,36,35,34,33,32,47,46,45,44,43,42,41,40],[23,22,21,20,19,18,17,16,31,30,29,28,27,26,25,24],[7,6,5,4,3,2,1,0,15,14,13,12,11,10,9,8]]
 
 
 
 def organize_raw_logs(name):
-    if not os.path.exists(f'{name}/csv'):
-        os.makedirs(f'{name}/csv')
+    os.makedirs(f'{name}/csv')
 
     columns = ['timestamp', 'module']
     for i in range(16):
@@ -154,16 +153,16 @@ def graficos_temp(name, active_ss, delta_t):
     figure.set_figwidth(15)
     figure.set_figheight(10)
 
-    plt.plot(temp_data['time(s)'], setpoint_data, label='Setpoint', linestyle='--')
+    plt.plot(temp_data['time(s)'], ad_temp(setpoint_data), label='Setpoint', linestyle='--')
     for ss in active_ss:
-        plt.plot(temp_data['time(s)'], temp_data[f'SS{ss}'], label=f'SS{ss}')
+        plt.plot(temp_data['time(s)'], ad_temp(temp_data[f'SS{ss}']), label=f'SS{ss}')
     
     date = name.split('_')[1:]
     date = '_'.join(date)
     plt.title(f'Log de temperatura: {date}')
 
     plt.xlabel('Tempo (s)')
-    plt.ylabel('Temperatura (u.a.)')
+    plt.ylabel('Temperatura (°C)')
     figure.legend()
     
     if not os.path.exists(f'{name}/graficos'):
@@ -210,7 +209,7 @@ def graficos_od_stir(name, active_ss, delta_t):
     figure.set_figwidth(15)
     figure.set_figheight(10)
     
-    ax1.plot(od_data['time(s)'], stir_data, label=f'Taxa de agitação', linestyle='--', color='b')
+    ax1.plot(od_data['time(s)'], ad_stir(stir_data), label=f'Taxa de agitação', linestyle='--', color='b')
     ax1.set_xlabel('Tempo (s)')
     ax1.set_ylabel('Agitação (%)')
 
@@ -263,8 +262,8 @@ def graficos_od_temp(name, active_ss, delta_t):
         ax1.set_ylabel('OD (u.a.)')
 
         ax2 = ax1.twinx()
-        ax2.set_ylabel('Temperatura (u.a.)')
-        ax2.plot(temp_data['time(s)'], temp_data[f'SS{ss}'], label=f'Temp', color='r')
+        ax2.set_ylabel('Temperatura (°C)')
+        ax2.plot(temp_data['time(s)'], ad_temp(temp_data[f'SS{ss}']), label=f'Temp', color='r')
    
         date = name.split('_')[1:]
         date = '_'.join(date)
@@ -278,8 +277,16 @@ def graficos_od_temp(name, active_ss, delta_t):
 
 
 
-#organize_raw_logs(log_path)
-graficos_od(log_path, [1,2,3,4,5,6,7,8], 10)
-graficos_od_stir(log_path, [1,2,3,4,5,6,7,8], 10)
-graficos_temp(log_path, [1,2,3,4,5,6,7,8], 10)
-graficos_od_temp(log_path, [1,2,3,4,5,6,7,8], 10)
+if __name__ == "__main__":
+    if not os.path.exists(log_path):
+        print("LOG NOT FOUND!")
+        
+    else:
+        if not os.path.exists(f'{log_path}/csv'):
+            organize_raw_logs(log_path)
+        
+        else:
+            graficos_od(log_path, [1,2,3,4,5,6,7,8], 10)
+            graficos_od_stir(log_path, [1,2,3,4,5,6,7,8], 10)
+            graficos_temp(log_path, [1,2,3,4,5,6,7,8], 10)
+            graficos_od_temp(log_path, [1,2,3,4,5,6,7,8], 10)

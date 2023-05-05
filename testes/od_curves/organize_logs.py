@@ -1,9 +1,10 @@
 import os
 import csv
+import socket
 import numpy as np
 import matplotlib.pyplot as plt
 
-
+log_path = 'logs/EVOLVER-1/log_05-05-23_09:01:01'
 ss2channel = [15,14,11,10,7,6,3,2,13,12,9,8,5,4,1,0]
 
 
@@ -53,8 +54,7 @@ def organize(name):
 
         log_writer.writerow(columns)
         log_writer.writerows(lines)
-    
-    return x,y
+
 
     
         
@@ -63,13 +63,9 @@ def plot(name):
     x = []
     y = []
 
-    if not os.path.isfile(f'{name}/organized.csv'):
-        x,y = organize(name)
-
-    else:
-        with open(f'{name}/organized.csv', 'r') as log_file:
-            log_reader = csv.reader(log_file, delimiter=';')
-            raw_data = [row for row in log_reader]
+    with open(f'{name}/organized.csv', 'r') as log_file:
+        log_reader = csv.reader(log_file, delimiter=';')
+        raw_data = [row for row in log_reader]
 
         for row in raw_data[1:]:
             x_data = []
@@ -88,6 +84,10 @@ def plot(name):
 
     x_data = []
     y_data = []
+
+    figure = plt.figure()
+    figure.set_figwidth(15)
+    figure.set_figheight(10)
     
     for i in range(8):
         x_data = [x_line[i] for x_line in x]
@@ -97,12 +97,19 @@ def plot(name):
     plt.title(f"{name.split('/')[1]}")
     plt.xlabel('LED emission (AD)')
     plt.ylabel('PT detector (AD)')
-    plt.legend()
+    figure.legend()
 
     plt.savefig(f'{name}/all.png')
     plt.show()
 
+    if not os.path.exists(f'{name}/SSs'):
+        os.makedirs(f'{log_path}/SSs')
+
     for i in range(8):
+        figure = plt.figure()
+        figure.set_figwidth(15)
+        figure.set_figheight(10)
+
         x_data = [x_line[i] for x_line in x]
         y_data = [y_line[i] for y_line in y]
 
@@ -119,9 +126,11 @@ def plot(name):
 
 
 if __name__ == "__main__":
-    log_path = 'logs/log_05-05-23_09:01:01'
+    if not os.path.exists(log_path):
+        print("LOG NOT FOUND!")
 
-    if not os.path.exists(f'{log_path}/SSs'):
-        os.makedirs(f'{log_path}/SSs')
+    else:
+        if not os.path.isfile(f'{log_path}/organized.csv'):
+            organize(log_path)
 
-    plot(log_path)
+        plot(log_path)

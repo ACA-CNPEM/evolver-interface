@@ -1,4 +1,5 @@
 import serial
+import socket
 import numpy as np
 import time
 import csv
@@ -22,8 +23,9 @@ read_od = 'od_135l,0,_!'
 
 # Log variables
 id = 'log_' + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime())
-if not os.path.exists(f'logs/{id}'):
-    os.makedirs(f'logs/{id}')
+unit = socket.gethostname()
+if not os.path.exists(f'logs/{unit}/{id}'):
+    os.makedirs(f'logs/{unit}/{id}')
 
 
 # Serial communication variable
@@ -58,7 +60,7 @@ def send_messages(command, channel):
             log_data.insert(0, received_time)
             log_data.insert(1, module)
 
-            with open(f'logs/{id}/raw.csv', 'a') as log_file:
+            with open(f'logs/{unit}/{id}/raw.csv', 'a') as log_file:
                 log_writer = csv.writer(log_file, delimiter=',')
                 log_writer.writerow(log_data)
 
@@ -69,11 +71,9 @@ def send_messages(command, channel):
 serial_channel.write(str.encode('stiri,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
 time.sleep(1)
 serial_channel.write(str.encode('stira,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
-time.sleep(2)
 print("GO!")
 
 for command in commands:
-    print(command)
     send_messages(command, serial_channel)
     serial_channel.write(str.encode(acknoledgment))
 
