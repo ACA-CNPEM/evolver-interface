@@ -7,25 +7,14 @@ import os
 import yaml
 from yaml.loader import SafeLoader
 
-points = np.array([round(i*40.95) for i in range(101)])
-commands = []
-
-for p in points:
-    line = "od_ledi,"
-    for i in range(16):
-        line += f"{p},"
-    line += "_!"
-    commands += [line]
-
-acknoledgment = 'od_leda,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'
-read_od = 'od_135l,0,_!'
-
 
 # Log variables
 id = 'log_' + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime())
 unit = socket.gethostname()
-if not os.path.exists(f'logs/{unit}/{id}'):
-    os.makedirs(f'logs/{unit}/{id}')
+path = f'logs/temp_curves/{unit}/{id}'
+
+if not os.path.exists(path):
+    os.makedirs(path)
 
 
 # Serial communication variable
@@ -60,7 +49,7 @@ def send_messages(command, channel):
             log_data.insert(0, received_time)
             log_data.insert(1, module)
 
-            with open(f'logs/{unit}/{id}/raw.csv', 'a') as log_file:
+            with open(f'{path}/raw.csv', 'a') as log_file:
                 log_writer = csv.writer(log_file, delimiter=',')
                 log_writer.writerow(log_data)
 
@@ -70,13 +59,18 @@ def send_messages(command, channel):
 # Initializing experiment
 serial_channel.write(str.encode('stiri,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
 time.sleep(1)
+
 serial_channel.write(str.encode('stira,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
+time.sleep(1)
+
+serial_channel.write(str.encode('od_ledi,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
+time.sleep(1)
+
+serial_channel.write(str.encode('od_leda,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
+time.sleep(1)
+
+serial_channel.reset_input_buffer()
 print("GO!")
 
-for command in commands:
-    send_messages(command, serial_channel)
-    serial_channel.write(str.encode(acknoledgment))
-
-    for i in range(5):
-        time.sleep(1)
-        send_messages(read_od, serial_channel)
+for i in range(60*10): # 10 min
+    send_messages('templ,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!', serial_channel)
