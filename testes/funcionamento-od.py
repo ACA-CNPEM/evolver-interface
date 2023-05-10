@@ -12,7 +12,7 @@ channel = serial.Serial(
     timeout = 1
 )
 
-ss = 0
+ss = 1
 command = 'od_ledi,'
 
 for i in range(16):
