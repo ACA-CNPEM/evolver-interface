@@ -278,7 +278,7 @@ def graficos_od_temp(name, active_ss, delta_t):
 
 
 
-organize_raw_logs(log_path)
+#organize_raw_logs(log_path)
 graficos_od(log_path, [1,2,3,4,5,6,7,8], 10)
 graficos_od_stir(log_path, [1,2,3,4,5,6,7,8], 10)
 graficos_temp(log_path, [1,2,3,4,5,6,7,8], 10)
