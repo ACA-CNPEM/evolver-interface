@@ -7,7 +7,7 @@ import os
 import yaml
 from yaml.loader import SafeLoader
 
-points = np.array([round(i*409.5) for i in range(11)])
+points = np.array([i for i in range(4096)])
 commands = []
 
 for p in points:
@@ -25,7 +25,7 @@ read_temp = 'templ,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'
 # Log variables
 id = 'log_' + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime())
 unit = socket.gethostname()
-path = f'logs/od-curves/{unit}/{id}'
+path = f'logs/od-curves/{unit}/calibration/{id}'
 
 if not os.path.exists(path):
     os.makedirs(path)
@@ -55,7 +55,7 @@ def send_messages(command, channel):
         input_string += input_bit.decode()
 
         if (input_string.rfind('end') != -1):
-            print(input_string)
+            #print(input_string)
             input_string = input_string.split(',')
             module = input_string[0]
 
@@ -75,9 +75,17 @@ serial_channel.write(str.encode('stiri,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
 time.sleep(1)
 serial_channel.write(str.encode('stira,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
 time.sleep(1)
+
 serial_channel.write(str.encode('tempi,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,_!'))
 time.sleep(1)
 serial_channel.write(str.encode('tempa,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
+time.sleep(1)
+
+serial_channel.write(str.encode('od_ledi,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
+time.sleep(1)
+serial_channel.write(str.encode('od_leda,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
+time.sleep(5)
+
 serial_channel.reset_input_buffer()
 print("GO!")
 

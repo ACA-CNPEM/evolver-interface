@@ -1,12 +1,23 @@
+import os
+import csv
 import math
 import numpy as np
+import matplotlib.pyplot as plt
 
+
+##### AUXILIARY VARIBALES #####
 BETA = 3435
 
 r = 0.3 # cm
 d = math.sqrt(5.12*(1 - math.cos(math.pi * 3/4))) # cm
 R = math.sqrt(r*r + d*d) # cm
 AREA_2_STERADIAN = (r*r*R)/(2*(R - d))
+
+calibration = {
+    'led': [],
+    'max': []
+}
+
 
 
 def ad_stir(commands): # AD -> %
@@ -17,7 +28,6 @@ def ad_stir(commands): # AD -> %
 def stir_ad(commands): # % -> AD
     commands = np.clip(np.array(commands), 0, 100)
     return [round(98*value/100) for value in commands]
-
 
 
 def ad_temp(commands): # AD -> °C
@@ -74,96 +84,93 @@ def od_led_ad(commands): # mW/sr -> AD
     return command_list
 
 
-#print(ad_od_135([2048],[4095]))
-#print(od_135_ad([0.035717642755589626],[4095]))
-#print(ad_temp(np.array([5])))
-
-'''
-    UNDER CONSTRUCTION
 def ad_od_135(commands, led_commands): # AD -> [0,1]
     command_list = []
-    led_commands = ad_od_led(led_commands)
 
-    for (i,value) in enumerate(commands):
-        current = (4095 - value)*3.3/409500 # mA
-        irradiance = 0.5/5.5 * (current - 1) + 0.5 # mW/cm²
-        #voltage = 3.3*value/4095 - 82*current # V
-        command_list += [(irradiance*AREA_2_STERADIAN)/led_commands[i]]
+    for i,value in enumerate(commands):
+        total = calibration['max'][calibration['led'].index(led_commands[i])]
+        command_list += [round(value / (65520.0 - total), 5)]
 
     return command_list
 
 
 def od_135_ad(commands, led_commands): # [0,1] -> AD
     command_list = []
-    led_commands = ad_od_led(led_commands)
 
-    for (i,value) in enumerate(commands):
-        irradiance = (value * led_commands[i])/AREA_2_STERADIAN
-        current = 5.5/0.5 * (irradiance - 0.5) + 1
-        command_list += [round(4095 - current*409500/3.3)]
+    for i,value in enumerate(commands):
+        total = calibration['max'][calibration['led'].index(led_commands[i])]
+        command_list += [round(value * (65520.0 - total))]
 
     return command_list
-'''
 
-'''def input2commands(input_string):
+
+
+if __name__ == "__main__":
+    calibration_file_path = 'logs/od-curves/EVOLVER-2/log_11-05-23_10:03:34/average_curve.csv'
+
+    if os.path.exists(calibration_file_path):
+        with open(calibration_file_path, 'r') as log_file:
+                log_reader = csv.reader(log_file, delimiter=';')
+                raw_data = [row for row in log_reader]
+        
+        calibration['led'] = [float(item) for item in raw_data[0]]
+        calibration['max'] = [float(item) for item in raw_data[1]]
+
+    '''ad = [i for i in range(4096)]
+    ad_ = [i for i in range(100)]
+
+    temp = ad_temp(ad)
+    led = ad_od_led(ad)
+    stir = ad_stir(ad_)
+
+    a,b,c = np.polyfit(ad[940:2450], temp[940:2450] ,2)
+    fit = [a*i*i + b*i + c for i in ad]
+
+    plt.plot(ad, temp, color='y')
+    plt.plot(ad[940:2450], fit [940:2450], linestyle='--', label='y = ' + '{:.2f}'.format(c) + ' + {:.2f}'.format(b) + 'x + {:.2f}'.format(c) + 'x²')
+
+    plt.title('Curva de conversão: AD para °C')
+    plt.legend()
+
+    plt.xlabel('Leitura AD')
+    plt.ylabel('Temperatura (°C)')
+    plt.show()
+
+    a,b = np.polyfit(ad,led,1)
+    fit = [a*i + b for i in ad]
+    plt.plot(ad, led, color='y')
+    plt.plot(ad, fit, linestyle='--', label='y = ' + '{:.2f}'.format(b) + ' + {:.2f}'.format(a) + 'x')
+
+    plt.title('Curva de conversão: AD para mW/sr')
+    plt.legend()
+
+    plt.xlabel('Leitura AD')
+    plt.ylabel('Intensidade Radiante (mW/sr)')
+    plt.show()
+
+    a,b = np.polyfit(ad_, stir ,1)
+    fit = [a*i + b for i in ad_]
     
-        This funciton takes an input_string, with values set for the AD, and converts it into a list of command 
-        values in real life units
+    plt.plot(ad_, stir, color='y')
+    plt.plot(ad_, fit, linestyle='--', label='y = ' + '{:.2f}'.format(b) + ' + {:.2f}'.format(a) + 'x')
 
-        input (String): input_string e.g. 'tempi,4095,4095,4095,4095, ... ,4095,4095,4095,4095,end'
-        output (float[]): list of commands from input e.g. [20,20,20,20, ..., 20,20,20,20] (°C)
+    plt.title('Curva de conversão: AD para %')
+    plt.legend()
+
+    plt.xlabel('Leitura AD')
+    plt.ylabel('Rotação relativa (%)')
+    plt.show()
+
+    led = [4095 for i in calibration['max']]
+    a,b = np.polyfit(calibration['max'], ad_od_135(calibration['max'], led), 1)
+    fit = [a*i + b for i in calibration['max']]
+
+    plt.plot(calibration['max'], ad_od_135(calibration['max'], led),color='y')
+    plt.plot(calibration['max'], fit, linestyle='--', label='y = ' + '{:.2f}e-6'.format(b*1000000) + ' + {:.2f}'.format(a*1000000) + 'e-6 x')
     
+    plt.title('Curva de conversão: AD para coeficiente de transmissão')
+    plt.legend()
 
-    input_string = input_string.split(',')
-    module = input_string[0][:-1]
-    tag = input_string[0][-1]
-
-    commands = [float(command) for command in input_string[1:(len(input_string)-1)]]
-
-    if module == 'stir':
-        converted = ad_stir(commands)
-
-    elif module == 'temp':
-        converted = ad_temp(commands)
-
-    elif module == 'od_led':
-        converted = ad_od_led(commands)
-
-    elif module == 'od_135':
-        #get od_led values
-        converted = ad_od_135(commands) # led
-
-    print(commands, module, converted)
-    return converted
-
-
-
-def commands2input(module, commands):
-    
-        This funciton takes a list of commands and converts it into a command_line with compatible AD values
-
-        input (float[]): list of commands e.g. [8, ... ,50] (%)
-        output (String): input_string with commands e.g. 'stiri,8 ... ,49,_!'
-    
-
-    if module == 'stir':
-        converted = stir_ad(commands)
-    
-    elif module == 'temp':
-        converted = temp_ad(commands)
-    
-    elif module == 'od_led':
-        converted = od_led_ad(commands)
-
-    elif module == 'od_135':
-        converted = od_135_ad(commands, [4095])
-
-
-    return converted
-
-
-#input2commands('tempe,1200,2048,end')
-input2commands('od_135i,4000,_!')
-commands2input('od_135','i',[0.03559324257546879])
-ad_od_135([2048],[4095])
-#input2commands('od_lede,4090,2048,end')'''
+    plt.xlabel('Leitura AD')
+    plt.ylabel('Transmissão (adimensional)')
+    plt.show()'''

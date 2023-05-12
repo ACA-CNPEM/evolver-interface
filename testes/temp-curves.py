@@ -11,7 +11,11 @@ from yaml.loader import SafeLoader
 # Log variables
 id = 'log_' + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime())
 unit = socket.gethostname()
+<<<<<<< HEAD:testes/temp-curves.py
 path = f'logs/temp-curves/{unit}/{id}'
+=======
+path = f'logs/temp_curves/{unit}/{id}'
+>>>>>>> 573cbcb9941cd7ad29323090528afdb12400240f:testes/temp-curves.py
 
 if not os.path.exists(path):
     os.makedirs(path)
