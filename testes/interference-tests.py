@@ -7,7 +7,7 @@ from yaml.loader import SafeLoader
 import socket
 
 # Log variables
-type = 'od-1'
+type = 'od-2'
 id = 'log_' + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime())
 unit = socket.gethostname()
 path = f'logs/interference-tests/{unit}/{type}/{id}'

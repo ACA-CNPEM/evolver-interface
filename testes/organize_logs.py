@@ -5,7 +5,7 @@ from utils import *
 
 
 
-log_path = 'testes/logs/interference-tests/EVOLVER-2/od-1/log_15-05-23_10:23:45'
+log_path = 'testes/logs/interference-tests/EVOLVER-1/od-1/log_15-05-23_11:33:37'
 ss2channel = [15,14,11,10,7,6,3,2,13,12,9,8,5,4,1,0]
 pump2ss =[[39,38,37,36,35,34,33,32,47,46,45,44,43,42,41,40],[23,22,21,20,19,18,17,16,31,30,29,28,27,26,25,24],[7,6,5,4,3,2,1,0,15,14,13,12,11,10,9,8]]
 
@@ -712,7 +712,6 @@ if __name__ == "__main__":
                 organize_od_curves(log_path)
 
             graficos_od_curves(log_path, [1,2,3,4,5,6,7,8], 1)
-            #graficos_od_curves_t(log_path, [1,2,3,4,5,6,7,8], 1)
             graficos_od_temp_curves(log_path, [1,2,3,4,5,6,7,8], 1)
         
         if type == 'temp-curves':
