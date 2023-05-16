@@ -20,7 +20,7 @@ if not os.path.exists(path):
 # Configuration variables
 with open('configuration.yaml') as configuration_file:
     config = yaml.load(configuration_file, Loader=SafeLoader)
-    commands = config[f'dia{dia}']
+    commands = config['periodo-extendido'][f'dia{dia}']
     acknoledgment= config['acknoledgment']
     smart_sleeves = config['smart_sleeves']
 

@@ -5,7 +5,7 @@ from utils import *
 
 
 
-log_path = 'logs/od-curves/EVOLVER-2/calibration/log_12-05-23_08:33:23'
+log_path = 'testes/logs/interference-tests/EVOLVER-2/od-1/log_15-05-23_10:23:45'
 ss2channel = [15,14,11,10,7,6,3,2,13,12,9,8,5,4,1,0]
 pump2ss =[[39,38,37,36,35,34,33,32,47,46,45,44,43,42,41,40],[23,22,21,20,19,18,17,16,31,30,29,28,27,26,25,24],[7,6,5,4,3,2,1,0,15,14,13,12,11,10,9,8]]
 
@@ -83,35 +83,35 @@ def organize_od_curves(name):
         log_reader = csv.reader(log_file, delimiter=',')
         raw_od = [row for row in log_reader]
     
-    '''with open(f'{name}/tempb_raw.csv', 'r') as log_file:
+    with open(f'{name}/tempb_raw.csv', 'r') as log_file:
         log_reader = csv.reader(log_file, delimiter=',')
-        raw_temp = [row for row in log_reader]'''
+        raw_temp = [row for row in log_reader]
         
     od_data = []
-    #temp_data = []
+    temp_data = []
 
     sum = [0 for i in range(16)]
-    #temp_sum = [0 for i in range(16)]
+    temp_sum = [0 for i in range(16)]
 
     p = 0
     for k,line in enumerate(raw_od):
             line = line[2:]
-            #temp_line = raw_temp[k][2:]
+            temp_line = raw_temp[k][2:]
                 
             if(p < 4):
                 sum = [sum[i]+float(line[ss2channel[i]]) for i in range(16)]
-                #temp_sum = [temp_sum[i]+float(temp_line[ss2channel[i]]) for i in range(16)]
+                temp_sum = [temp_sum[i]+float(temp_line[ss2channel[i]]) for i in range(16)]
                 p += 1
                 
             else:
                 sum = [sum[i]+float(line[ss2channel[i]]) for i in range(16)]
-                #temp_sum = [temp_sum[i]+float(temp_line[ss2channel[i]]) for i in range(16)]
+                temp_sum = [temp_sum[i]+float(temp_line[ss2channel[i]]) for i in range(16)]
 
                 od_data += [[sum[i]/5 for i in range(16)]]
-                #temp_data += [[temp_sum[i]/5 for i in range(16)]]
+                temp_data += [[temp_sum[i]/5 for i in range(16)]]
 
                 sum = [0 for i in range(16)]
-                #temp_sum = [0 for i in range(16)]
+                temp_sum = [0 for i in range(16)]
                 p = 0
 
 
@@ -127,7 +127,7 @@ def organize_od_curves(name):
 
             log_writer.writerow(line)
     
-    '''with open(f'{name}/organized_temp.csv', 'a') as log_file:
+    with open(f'{name}/organized_temp.csv', 'a') as log_file:
         log_writer = csv.writer(log_file, delimiter=';')
         log_writer.writerow(columns)
 
@@ -138,7 +138,7 @@ def organize_od_curves(name):
             for j in range(16):
                 line += [temp_data[i][j]]
 
-            log_writer.writerow(line)'''
+            log_writer.writerow(line)
 
 
 def organize_temp_curves(name):
@@ -182,6 +182,50 @@ def organize_temp_curves(name):
     plt.show()
 
 
+def organize_interface_tests(name):
+    columns = ['time(s)']
+    for i in range(16):
+            columns += [f'SS{i+1}']
+
+    type = name.split('/')[-2]
+
+    with open(f'{name}/{type}.csv', 'r') as log_file:
+        log_reader = csv.reader(log_file, delimiter=',')
+        raw_data = [row for row in log_reader]
+    
+    if type == 'od-1':
+        os.makedirs(f'{name}/csv')
+        columns.insert(1, 'stir')
+        led = 0
+        stir = 0
+
+        for line in raw_data:
+            module = line[1][:-1]
+
+            if module == 'od_led':
+                inicial_time = float(line[0])
+                led = int(line[3])
+
+                with open(f'{name}/csv/{led}.csv', 'a') as log_file:
+                    log_writer = csv.writer(log_file, delimiter=';')
+                    log_writer.writerow(columns)
+            
+            else:
+                if module == 'stir':
+                    stir = int(line[2])
+                
+                else:
+                    organized = [float(line[0]) - inicial_time, stir]
+                    line = line[2:]
+
+                    for i in range(16):
+                        organized += [float(line[ss2channel[i]])]
+                    
+                    with open(f'{name}/csv/{led}.csv', 'a') as log_file:
+                        log_writer = csv.writer(log_file, delimiter=';')
+                        log_writer.writerow(organized)
+        
+                
 def graph_data(name, log_type):
     graph_data = {}
 
@@ -196,6 +240,48 @@ def graph_data(name, log_type):
                     graph_data[key] += [row[key]]
     
     return graph_data
+
+
+def graficos_interference_stir_od(name, active_ss, delta_t):
+    for ad in [1024, 2048, 3072, 4095]:
+        raw_data = graph_data(name, f'csv/{ad}')
+        data = {}
+
+        for key in raw_data.keys():
+            data[key] = []
+        
+        for point in range(len(raw_data['time(s)'])):
+            if (point % delta_t == 0):
+                for key in data.keys():
+                    data[key] += [float(raw_data[key][point])]
+        
+        figure, ax1 = plt.subplots()
+        figure.set_figwidth(15)
+        figure.set_figheight(10)
+        
+        ax1.set_xlabel('Time(s)')
+        ax1.set_ylabel('OD (AD)')
+
+        for ss in active_ss:
+            ax1.plot(data['time(s)'], data[f'SS{ss}'], label=f'SS{ss}')
+
+        ax2 = ax1.twinx()
+        ax2.set_ylabel('Agitação (%)')
+        ax2.plot(data['time(s)'], ad_stir(data['stir']), linestyle='--')
+
+        date = name.split('_')[1:]
+        date = '_'.join(date)
+        plt.title(f'Log de OD com Agitação para LED emitindo {ad_od_led([ad])[0]} mW/sr ({ad} AD) - {date}')
+        figure.legend()
+
+        if not os.path.exists(f'{name}/graficos'):
+            os.makedirs(f'{name}/graficos')
+
+        plt.savefig(f'{name}/graficos/{ad}.png')
+
+
+
+
 
 
 def graficos_od(name, active_ss, delta_t):
@@ -253,20 +339,18 @@ def graficos_od_curves(name, active_ss, delta_t):
 
             for key in od_data.keys():
                 od_data[key] += [float(od_raw_data[key][point])]
-                t_data[key] += [1 - float(od_raw_data[key][point]) / (65520.0 - 1790) ]
+                t_data[key] += [(65520.0 - float(od_raw_data[key][point])) / (65520.0 - float(od_raw_data[key][-1])) if float(od_raw_data[key][-1]) != 65520.0 else 0]
                 
                 if key in avg_ss:
                     sum1 += float(od_raw_data[key][point])
-                    sum2 += 1 - float(od_raw_data[key][point]) / (65520.0 - 1790)
+                    sum2 += (65520.0 - float(od_raw_data[key][point])) / (65520.0 - float(od_raw_data[key][-1])) if float(od_raw_data[key][-1]) != 65520.0 else 0
 
-            avg_data += [sum1/8]
-            avg_t_data += [sum2/8]
+            avg_data += [sum1/len(avg_ss)]
+            avg_t_data += [sum2/len(avg_ss)]
     
     for i in range(len(od_data['led'])):
         od_data['led'][i] /= 4095
-        
-
-    
+            
     if not os.path.exists(f'{name}/average_curve.csv'):
         with open(f'{name}/average_curve.csv', 'a') as log_file:
             log_writer = csv.writer(log_file, delimiter=';')
@@ -308,7 +392,6 @@ def graficos_od_curves(name, active_ss, delta_t):
 
     plt.savefig(f'{name}/log_od_t.png')
     plt.show()
-
 
 
 def graficos_od_curves_t(name, active_ss, delta_t):
@@ -616,6 +699,8 @@ def graficos_od_temp(name, active_ss, delta_t):
 
 
 if __name__ == "__main__":
+    log_path = '/'.join(log_path.split('/')[1:])
+
     if not os.path.exists(log_path):
         print("LOG NOT FOUND!")
 
@@ -628,7 +713,7 @@ if __name__ == "__main__":
 
             graficos_od_curves(log_path, [1,2,3,4,5,6,7,8], 1)
             #graficos_od_curves_t(log_path, [1,2,3,4,5,6,7,8], 1)
-            #graficos_od_temp_curves(log_path, [1,2,3,4,5,6,7,8], 1)
+            graficos_od_temp_curves(log_path, [1,2,3,4,5,6,7,8], 1)
         
         if type == 'temp-curves':
             organize_temp_curves(log_path)
@@ -644,3 +729,9 @@ if __name__ == "__main__":
             graficos_temp(log_path, [1,2,3,4,5,6,7,8], 10)
             graficos_od_stir(log_path, [1,2,3,4,5,6,7,8], 10)
             graficos_od_temp(log_path, [1,2,3,4,5,6,7,8], 10)
+        
+        if type == 'interference-tests':
+            if not os.path.exists(f'{log_path}/csv'):
+                organize_interface_tests(log_path)
+            
+            graficos_interference_stir_od(log_path,[1,2,3,4,5,6,7,8],1)

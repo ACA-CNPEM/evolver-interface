@@ -7,7 +7,7 @@ import os
 import yaml
 from yaml.loader import SafeLoader
 
-points = np.array([i for i in range(4096)])
+points = np.array([i*409.5 for i in range(11)])
 commands = []
 
 for p in points:
@@ -25,7 +25,7 @@ read_temp = 'templ,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'
 # Log variables
 id = 'log_' + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime())
 unit = socket.gethostname()
-path = f'logs/od-curves/{unit}/calibration/{id}'
+path = f'logs/od-curves/{unit}/{id}'
 
 if not os.path.exists(path):
     os.makedirs(path)

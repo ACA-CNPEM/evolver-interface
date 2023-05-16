@@ -18,6 +18,16 @@ calibration = {
     'max': []
 }
 
+calibration_file_path = 'logs/od-curves/EVOLVER-2/log_11-05-23_10:03:34/average_curve.csv'
+
+if os.path.exists(calibration_file_path):
+    with open(calibration_file_path, 'r') as log_file:
+            log_reader = csv.reader(log_file, delimiter=';')
+            raw_data = [row for row in log_reader]
+        
+    calibration['led'] = [float(item) for item in raw_data[0]]
+    calibration['max'] = [float(item) for item in raw_data[1]]
+
 
 
 def ad_stir(commands): # AD -> %
@@ -106,17 +116,7 @@ def od_135_ad(commands, led_commands): # [0,1] -> AD
 
 
 if __name__ == "__main__":
-    calibration_file_path = 'logs/od-curves/EVOLVER-2/log_11-05-23_10:03:34/average_curve.csv'
-
-    if os.path.exists(calibration_file_path):
-        with open(calibration_file_path, 'r') as log_file:
-                log_reader = csv.reader(log_file, delimiter=';')
-                raw_data = [row for row in log_reader]
-        
-        calibration['led'] = [float(item) for item in raw_data[0]]
-        calibration['max'] = [float(item) for item in raw_data[1]]
-
-    '''ad = [i for i in range(4096)]
+    ad = [i for i in range(4096)]
     ad_ = [i for i in range(100)]
 
     temp = ad_temp(ad)
@@ -173,4 +173,4 @@ if __name__ == "__main__":
 
     plt.xlabel('Leitura AD')
     plt.ylabel('Transmissão (adimensional)')
-    plt.show()'''
+    plt.show()
