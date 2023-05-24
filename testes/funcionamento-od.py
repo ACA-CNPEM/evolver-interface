@@ -18,7 +18,7 @@ command = 'od_ledi,'
 
 for i in range(16):
     if(ss2channel.index(i) + 1 == ss):
-        command += '1000,'
+        command += '4095,'
     else:
         command += '0,'
 command += '_!'

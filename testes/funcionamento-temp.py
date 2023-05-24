@@ -18,7 +18,7 @@ command = 'tempi,'
 
 for i in range(16):
     if(ss2channel.index(i) + 1 == ss):
-        command += '1200,'
+        command += '0,'
     else:
         command += '4095,'
 command += '_!'

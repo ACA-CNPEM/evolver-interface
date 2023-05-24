@@ -4,18 +4,12 @@ import numpy as np
 import time
 import csv
 import os
-import yaml
-from yaml.loader import SafeLoader
 
 
 # Log variables
 id = 'log_' + time.strftime("%d-%m-%y_%H:%M:%S", time.localtime())
 unit = socket.gethostname()
-<<<<<<< HEAD:testes/temp-curves.py
 path = f'logs/temp-curves/{unit}/{id}'
-=======
-path = f'logs/temp_curves/{unit}/{id}'
->>>>>>> 573cbcb9941cd7ad29323090528afdb12400240f:testes/temp-curves.py
 
 if not os.path.exists(path):
     os.makedirs(path)
@@ -45,7 +39,7 @@ def send_messages(command, channel):
         input_string += input_bit.decode()
 
         if (input_string.rfind('end') != -1):
-            print(input_string)
+            #print(input_string)
             input_string = input_string.split(',')
             module = input_string[0]
 
@@ -74,7 +68,17 @@ serial_channel.write(str.encode('od_leda,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
 time.sleep(1)
 
 serial_channel.reset_input_buffer()
-print("GO!")
+#print("GO!")
 
-for i in range(60*10): # 10 min
-    send_messages('templ,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!', serial_channel)
+for i in range(11):
+
+    command_stirng = 'tempi,'
+    for j in range(16):
+        command_stirng += f'{2050 - i*55.4},'
+    command_stirng += '_!'
+    
+    send_messages(command_stirng, serial_channel)
+    serial_channel.write(str.encode('tempa,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
+
+    for j in range(60*5): # 10 min
+        send_messages('templ,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!', serial_channel)

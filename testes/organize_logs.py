@@ -5,7 +5,7 @@ from utils import *
 
 
 
-log_path = 'testes/logs/interference-tests/EVOLVER-1/od-1/log_15-05-23_11:33:37'
+log_path = 'testes/logs/temp-curves/EVOLVER-1/log_16-05-23_11:42:39'
 ss2channel = [15,14,11,10,7,6,3,2,13,12,9,8,5,4,1,0]
 pump2ss =[[39,38,37,36,35,34,33,32,47,46,45,44,43,42,41,40],[23,22,21,20,19,18,17,16,31,30,29,28,27,26,25,24],[7,6,5,4,3,2,1,0,15,14,13,12,11,10,9,8]]
 
@@ -146,7 +146,9 @@ def organize_temp_curves(name):
     for i in range(16):
             columns += [f'SS{i+1}']
 
-    data = {}
+    data = {
+        'setpoint': [],
+    }
     for column in columns:
         data[column] = []
 
@@ -157,17 +159,25 @@ def organize_temp_curves(name):
     
     raw_data = raw_data[1:]
     inicial_time = float(raw_data[0][0])
+    setpoint = 2050
 
     for line in raw_data:
-        data['time(s)'] += [float(line[0]) - inicial_time]
-        line = line[2:]
+        if line[1][-1] == 'e':
+            setpoint = float(line[2])
 
-        for i in range(16):
-            data[f'SS{i+1}'] += [float(line[ss2channel[i]])]
+        else:
+            data['time(s)'] += [float(line[0]) - inicial_time]
+            line = line[2:]  
+            data['setpoint'] += [setpoint]
+
+            for i in range(16):
+                data[f'SS{i+1}'] += [float(line[ss2channel[i]])]
     
     figure = plt.figure()
     figure.set_figwidth(15)
     figure.set_figheight(10)
+
+    plt.plot(data['time(s)'], ad_temp(data['setpoint']), label='Setpoint', linestyle='--')
 
     for ss in range(8):
         plt.plot(data['time(s)'], ad_temp(data[f'SS{ss+1}']), label=f'SS{ss+1}')
@@ -188,13 +198,13 @@ def organize_interface_tests(name):
             columns += [f'SS{i+1}']
 
     type = name.split('/')[-2]
+    os.makedirs(f'{name}/csv')
 
     with open(f'{name}/{type}.csv', 'r') as log_file:
         log_reader = csv.reader(log_file, delimiter=',')
         raw_data = [row for row in log_reader]
     
     if type == 'od-1':
-        os.makedirs(f'{name}/csv')
         columns.insert(1, 'stir')
         led = 0
         stir = 0
@@ -224,7 +234,10 @@ def organize_interface_tests(name):
                     with open(f'{name}/csv/{led}.csv', 'a') as log_file:
                         log_writer = csv.writer(log_file, delimiter=';')
                         log_writer.writerow(organized)
-        
+    
+    elif type == 'od-2':
+        print('a')
+
                 
 def graph_data(name, log_type):
     graph_data = {}
@@ -278,10 +291,6 @@ def graficos_interference_stir_od(name, active_ss, delta_t):
             os.makedirs(f'{name}/graficos')
 
         plt.savefig(f'{name}/graficos/{ad}.png')
-
-
-
-
 
 
 def graficos_od(name, active_ss, delta_t):
@@ -733,4 +742,7 @@ if __name__ == "__main__":
             if not os.path.exists(f'{log_path}/csv'):
                 organize_interface_tests(log_path)
             
-            graficos_interference_stir_od(log_path,[1,2,3,4,5,6,7,8],1)
+            type = log_path.split('/')[3]
+
+            if type == 'od-1':
+                graficos_interference_stir_od(log_path,[1,2,3,4,5,6,7,8],1)

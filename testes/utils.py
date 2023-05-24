@@ -2,7 +2,7 @@ import os
 import csv
 import math
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 
 ##### AUXILIARY VARIBALES #####
@@ -99,7 +99,7 @@ def ad_od_135(commands, led_commands): # AD -> [0,1]
 
     for i,value in enumerate(commands):
         total = calibration['max'][calibration['led'].index(led_commands[i])]
-        command_list += [round(value / (65520.0 - total), 5)]
+        command_list += [round((65520.0 - value) / (65520.0 - total), 5)]
 
     return command_list
 
@@ -116,7 +116,8 @@ def od_135_ad(commands, led_commands): # [0,1] -> AD
 
 
 if __name__ == "__main__":
-    ad = [i for i in range(4096)]
+    print(ad_temp([1850,1900,1950]))
+    '''ad = [i for i in range(4096)]
     ad_ = [i for i in range(100)]
 
     temp = ad_temp(ad)
@@ -173,4 +174,4 @@ if __name__ == "__main__":
 
     plt.xlabel('Leitura AD')
     plt.ylabel('Transmissão (adimensional)')
-    plt.show()
+    plt.show()'''
