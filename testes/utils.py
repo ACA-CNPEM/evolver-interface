@@ -116,7 +116,6 @@ def od_135_ad(commands, led_commands): # [0,1] -> AD
 
 
 if __name__ == "__main__":
-    print(ad_temp([1850,1900,1950]))
     '''ad = [i for i in range(4096)]
     ad_ = [i for i in range(100)]
 

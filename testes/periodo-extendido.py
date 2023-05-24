@@ -85,7 +85,7 @@ for module in commands.keys():
 # Experiment loop
 cycle = 0
 
-while True:
+while cycle <= 2880:
     if dia == 3:
         if cycle == 720: # 10h - 12h
             send_messages(f'log_inicial', commands['stir']['status2'], serial_channel)

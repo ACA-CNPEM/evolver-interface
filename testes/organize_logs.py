@@ -5,7 +5,7 @@ from utils import *
 
 
 
-log_path = 'testes/logs/temp-curves/EVOLVER-1/log_16-05-23_11:42:39'
+log_path = 'testes/logs/od-curves/EVOLVER-1/log_24-05-23_13:02:35'
 ss2channel = [15,14,11,10,7,6,3,2,13,12,9,8,5,4,1,0]
 pump2ss =[[39,38,37,36,35,34,33,32,47,46,45,44,43,42,41,40],[23,22,21,20,19,18,17,16,31,30,29,28,27,26,25,24],[7,6,5,4,3,2,1,0,15,14,13,12,11,10,9,8]]
 
@@ -726,9 +726,6 @@ if __name__ == "__main__":
         if type == 'temp-curves':
             organize_temp_curves(log_path)
 
-            #graficos_od_curves(log_path, [1,2,3,4,5,6,7,8], 1)
-            #plot_od_curves(log_path)
-
         if type == 'periodo-extendido':
             if not os.path.exists(f'{log_path}/csv'):
                 organize_extended_logs(log_path)
@@ -738,11 +735,8 @@ if __name__ == "__main__":
             graficos_od_stir(log_path, [1,2,3,4,5,6,7,8], 10)
             graficos_od_temp(log_path, [1,2,3,4,5,6,7,8], 10)
         
-        if type == 'interference-tests':
+        '''if type == 'interference-tests':
             if not os.path.exists(f'{log_path}/csv'):
                 organize_interface_tests(log_path)
             
-            type = log_path.split('/')[3]
-
-            if type == 'od-1':
-                graficos_interference_stir_od(log_path,[1,2,3,4,5,6,7,8],1)
+            graficos_interference_stir_od(log_path,[1,2,3,4,5,6,7,8],1)'''

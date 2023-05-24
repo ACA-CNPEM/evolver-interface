@@ -4,8 +4,7 @@ import numpy as np
 import time
 import csv
 import os
-import yaml
-from yaml.loader import SafeLoader
+
 
 points = np.array([i*409.5 for i in range(11)])
 commands = []
