@@ -4,13 +4,12 @@ import matplotlib.pyplot as plt
 from utils import *
 
 
-
-log_path = 'testes/logs/od-curves/EVOLVER-1/log_24-05-23_13:02:35'
+log_path = 'testes/logs/temp-curves/EVOLVER-1/log_26-05-23_14:41:51'
 ss2channel = [15,14,11,10,7,6,3,2,13,12,9,8,5,4,1,0]
 pump2ss =[[39,38,37,36,35,34,33,32,47,46,45,44,43,42,41,40],[23,22,21,20,19,18,17,16,31,30,29,28,27,26,25,24],[7,6,5,4,3,2,1,0,15,14,13,12,11,10,9,8]]
 
 
-
+# ORGANIZE FILES
 def organize_extended_logs(name):
     os.makedirs(f'{name}/csv')
 
@@ -82,38 +81,25 @@ def organize_od_curves(name):
     with open(f'{name}/od_135b_raw.csv', 'r') as log_file:
         log_reader = csv.reader(log_file, delimiter=',')
         raw_od = [row for row in log_reader]
-    
-    with open(f'{name}/tempb_raw.csv', 'r') as log_file:
-        log_reader = csv.reader(log_file, delimiter=',')
-        raw_temp = [row for row in log_reader]
         
     od_data = []
-    temp_data = []
-
     sum = [0 for i in range(16)]
-    temp_sum = [0 for i in range(16)]
+
 
     p = 0
     for k,line in enumerate(raw_od):
             line = line[2:]
-            temp_line = raw_temp[k][2:]
                 
             if(p < 4):
                 sum = [sum[i]+float(line[ss2channel[i]]) for i in range(16)]
-                temp_sum = [temp_sum[i]+float(temp_line[ss2channel[i]]) for i in range(16)]
                 p += 1
                 
             else:
                 sum = [sum[i]+float(line[ss2channel[i]]) for i in range(16)]
-                temp_sum = [temp_sum[i]+float(temp_line[ss2channel[i]]) for i in range(16)]
-
                 od_data += [[sum[i]/5 for i in range(16)]]
-                temp_data += [[temp_sum[i]/5 for i in range(16)]]
 
                 sum = [0 for i in range(16)]
-                temp_sum = [0 for i in range(16)]
                 p = 0
-
 
     with open(f'{name}/organized_od.csv', 'a') as log_file:
         log_writer = csv.writer(log_file, delimiter=';')
@@ -126,19 +112,42 @@ def organize_od_curves(name):
                 line += [od_data[i][j]]
 
             log_writer.writerow(line)
-    
-    with open(f'{name}/organized_temp.csv', 'a') as log_file:
-        log_writer = csv.writer(log_file, delimiter=';')
-        log_writer.writerow(columns)
 
 
-        for i in range(len(led)):
-            line = [led[i]]
+    if os.path.exists(f'{name}/tempb_raw.csv'):
+        with open(f'{name}/tempb_raw.csv', 'r') as log_file:
+            log_reader = csv.reader(log_file, delimiter=',')
+            raw_temp = [row for row in log_reader]
+        
+        temp_data = []
+        sum = [0 for i in range(16)]
 
-            for j in range(16):
-                line += [temp_data[i][j]]
+        p = 0
+        for k,line in enumerate(raw_temp):
+                line = line[2:]
+                    
+                if(p < 4):
+                    sum = [sum[i]+float(line[ss2channel[i]]) for i in range(16)]
+                    p += 1
+                    
+                else:
+                    sum = [sum[i]+float(line[ss2channel[i]]) for i in range(16)]
+                    temp_data += [[sum[i]/5 for i in range(16)]]
 
-            log_writer.writerow(line)
+                    sum = [0 for i in range(16)]
+                    p = 0
+        
+        with open(f'{name}/organized_temp.csv', 'a') as log_file:
+            log_writer = csv.writer(log_file, delimiter=';')
+            log_writer.writerow(columns)
+
+            for i in range(len(led)):
+                line = [led[i]]
+
+                for j in range(16):
+                    line += [temp_data[i][j]]
+
+                log_writer.writerow(line)
 
 
 def organize_temp_curves(name):
@@ -174,11 +183,10 @@ def organize_temp_curves(name):
                 data[f'SS{i+1}'] += [float(line[ss2channel[i]])]
     
     figure = plt.figure()
-    figure.set_figwidth(15)
-    figure.set_figheight(10)
+    figure.set_figwidth(10)
+    figure.set_figheight(7)
 
     plt.plot(data['time(s)'], ad_temp(data['setpoint']), label='Setpoint', linestyle='--')
-
     for ss in range(8):
         plt.plot(data['time(s)'], ad_temp(data[f'SS{ss+1}']), label=f'SS{ss+1}')
    
@@ -186,7 +194,47 @@ def organize_temp_curves(name):
     plt.title(f'Log de Temp')
     plt.xlabel('Tempo (s)')
     plt.ylabel('Temperatura (°C)')
-    figure.legend()
+    plt.legend()
+
+    plt.savefig(f'{name}/log_temp.png')
+    plt.show()
+
+
+def organize_temp_curves_realtime(name):
+    columns = ['time(s)']
+    for i in range(16):
+            columns += [f'SS{i+1}']
+
+    data = {}
+    for column in columns:
+        data[column] = []
+
+    with open(f'{name}/raw.csv', 'r') as log_file:
+        log_reader = csv.reader(log_file, delimiter=',')
+        raw_data = [row for row in log_reader]
+    
+    inicial_time = float(raw_data[0][0])
+
+    for line in raw_data:
+        data['time(s)'] += [float(line[0]) - inicial_time]
+        line = line[1:]  
+
+        for i in range(16):
+            data[f'SS{i+1}'] += [float(line[ss2channel[i]])]
+    
+    figure = plt.figure()
+    figure.set_figwidth(10)
+    figure.set_figheight(7)
+
+    for ss in range(8):
+        #plt.plot(data['time(s)'][:3550], ad_temp(data[f'SS{ss+1}'][:3550]), label=f'SS{ss+1}')
+        plt.plot(data['time(s)'], ad_temp(data[f'SS{ss+1}']), label=f'SS{ss+1}')
+   
+
+    plt.title(f'Log de Temp')
+    plt.xlabel('Tempo (s)')
+    plt.ylabel('Temperatura (°C)')
+    plt.legend()
 
     plt.savefig(f'{name}/log_temp.png')
     plt.show()
@@ -238,7 +286,8 @@ def organize_interface_tests(name):
     elif type == 'od-2':
         print('a')
 
-                
+
+# PLOT DATA                
 def graph_data(name, log_type):
     graph_data = {}
 
@@ -329,121 +378,69 @@ def graficos_od(name, active_ss, delta_t):
 
 def graficos_od_curves(name, active_ss, delta_t):
     od_raw_data = graph_data(name, 'organized_od')
-    od_data = {}
-    t_data = {}
 
-    avg_data = []
-    avg_t_data = []
-    avg_ss = [f'SS{ss}' for ss in active_ss]
-    
+    od_data = {
+        'avg': {
+            'ad': [],
+            'v': [],
+            'i': [],
+        },
+
+        'led': {
+            'ad': [],
+            'int_rad': [],
+            'perc': [],
+        }
+    }
 
     for key in od_raw_data.keys():
-        od_data[key] = []
-        t_data[key] = []
+        od_data[key] = {
+            'ad': [],
+            'v': [],
+            'i': []
+        }
 
-    for point in range(len(od_raw_data['led'])):
+    sss = [f'SS{i}' for i in active_ss]
+    n_point = len(od_raw_data['led'])
+
+    for point in range(n_point):
         if (point % delta_t == 0):
-            sum1 = 0
-            sum2 = 0
+            sum = 0
+            od_data['led']['ad'] += [float(od_raw_data['led'][point])]
 
-            for key in od_data.keys():
-                od_data[key] += [float(od_raw_data[key][point])]
-                t_data[key] += [(65520.0 - float(od_raw_data[key][point])) / (65520.0 - float(od_raw_data[key][-1])) if float(od_raw_data[key][-1]) != 65520.0 else 0]
-                
-                if key in avg_ss:
-                    sum1 += float(od_raw_data[key][point])
-                    sum2 += (65520.0 - float(od_raw_data[key][point])) / (65520.0 - float(od_raw_data[key][-1])) if float(od_raw_data[key][-1]) != 65520.0 else 0
+            for key in sss:
+                od_data[key]['ad'] += [float(od_raw_data[key][point])]
+                od_data[key]['v'] += [3.3*float(od_raw_data[key][point])/65520]
+                od_data[key]['i'] += [(3.3 - 3.3*float(od_raw_data[key][point])/65520)/100.082]
 
-            avg_data += [sum1/len(avg_ss)]
-            avg_t_data += [sum2/len(avg_ss)]
-    
-    for i in range(len(od_data['led'])):
-        od_data['led'][i] /= 4095
+                sum += float(od_raw_data[key][point])
             
-    if not os.path.exists(f'{name}/average_curve.csv'):
-        with open(f'{name}/average_curve.csv', 'a') as log_file:
-            log_writer = csv.writer(log_file, delimiter=';')
-            log_writer.writerow(od_data['led'])
-            log_writer.writerow(avg_data)
-            log_writer.writerow(avg_t_data)
+            od_data['avg']['ad'] += [sum / len(sss)]
 
+
+    od_data['led']['int_rad'] = ad_od_led(od_data['led']['ad'])
+    od_data['led']['perc'] = [i/4095 for i in od_data['led']['ad']]
+
+    od_data['avg']['v'] = [3.3*i/65520 for i in od_data['avg']['ad']]
+    od_data['avg']['i'] = [(3.3 - i)/100.082 for i in od_data['avg']['v']]
+    
     figure = plt.figure()
-    figure.set_figwidth(15)
-    figure.set_figheight(10)
+    figure.set_figwidth(10)
+    figure.set_figheight(7)
 
-    plt.plot(od_data['led'], avg_data, label=f'Média', linestyle='--')
+    plt.plot(od_data['led']['int_rad'], od_data['avg']['v'], label=f'Média', linestyle='--')
     for ss in active_ss:
-        plt.plot(od_data['led'], od_data[f'SS{ss}'], label=f'SS{ss}')
+        plt.plot(od_data['led']['int_rad'], od_data[f'SS{ss}']['v'], label=f'SS{ss}')
    
     date = name.split('_')[1:]
     date = '_'.join(date)
     plt.title(f'Log de OD: {date}')
 
-    plt.xlabel('LED (% PWM)')
-    plt.ylabel('PT (AD)')
-    figure.legend()
+    plt.xlabel('LED (mW/sr)')
+    plt.ylabel('Tensão PT (V)')
+    plt.legend()
 
     plt.savefig(f'{name}/log_od.png')
-    plt.show()
-
-    figure = plt.figure()
-    figure.set_figwidth(15)
-    figure.set_figheight(10)
-
-    plt.plot(od_data['led'], avg_t_data, label=f'Média', linestyle='--')
-    for ss in active_ss:
-        plt.plot(od_data['led'], t_data[f'SS{ss}'], label=f'SS{ss}') 
-
-    plt.title(f'Log da transmissão de OD: {date}')
-    plt.xlabel('LED (% PWM)')
-    plt.ylabel('1 - PT/63730')
-    figure.legend()
-
-    plt.savefig(f'{name}/log_od_t.png')
-    plt.show()
-
-
-def graficos_od_curves_t(name, active_ss, delta_t):
-    od_raw_data = graph_data(name, 'organized_od')
-    od_data = {}
-    t_data = {}
-    d_data = []
-
-    for key in od_raw_data.keys():
-        od_data[key] = []
-        t_data[key] = []
-
-    for point in range(len(od_raw_data['led'])):
-        if (point % delta_t == 0):
-            sum = 0
-
-            for key in od_data.keys():
-                od_data[key] += [float(od_raw_data[key][point])]
-                t_data[key] += [1-float(od_raw_data[key][point]) / 60000.0]
-                
-                if key in ['SS1','SS2','SS3','SS4','SS5','SS6','SS7','SS8']:
-                    sum += 1-float(od_raw_data[key][point]) / 60000.0
-            
-            d_data += [sum/8]
-
-
-    figure = plt.figure()
-    figure.set_figwidth(15)
-    figure.set_figheight(10)
-
-    plt.plot(od_data['led'], d_data, label=f'Avg', linestyle='--')
-    for ss in active_ss:
-        plt.plot(od_data['led'], t_data[f'SS{ss}'], label=f'SS{ss}')
-   
-    date = name.split('_')[1:]
-    date = '_'.join(date)
-    plt.title(f'Log de transmissão de OD: {date}')
-
-    plt.xlabel('LED (AD)')
-    plt.ylabel('1 - PT/65520')
-    figure.legend()
-
-    plt.savefig(f'{name}/log_od_t.png')
     plt.show()
 
 
@@ -721,7 +718,9 @@ if __name__ == "__main__":
                 organize_od_curves(log_path)
 
             graficos_od_curves(log_path, [1,2,3,4,5,6,7,8], 1)
-            graficos_od_temp_curves(log_path, [1,2,3,4,5,6,7,8], 1)
+
+            if os.path.exists(f'{log_path}/organized_temp.csv'):
+                graficos_od_temp_curves(log_path, [1,2,3,4,5,6,7,8], 1)
         
         if type == 'temp-curves':
             organize_temp_curves(log_path)
@@ -735,6 +734,9 @@ if __name__ == "__main__":
             graficos_od_stir(log_path, [1,2,3,4,5,6,7,8], 10)
             graficos_od_temp(log_path, [1,2,3,4,5,6,7,8], 10)
         
+        if type == 'temp-curves-realtime':
+            organize_temp_curves_realtime(log_path)
+
         '''if type == 'interference-tests':
             if not os.path.exists(f'{log_path}/csv'):
                 organize_interface_tests(log_path)

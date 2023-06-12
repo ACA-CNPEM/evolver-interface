@@ -70,15 +70,19 @@ time.sleep(1)
 serial_channel.reset_input_buffer()
 #print("GO!")
 
-for i in range(11):
 
+for i in range(3):
     command_stirng = 'tempi,'
     for j in range(16):
-        command_stirng += f'{2050 - i*55.4},'
+        command_stirng += f'{1200 - i*50},'
     command_stirng += '_!'
     
     send_messages(command_stirng, serial_channel)
     serial_channel.write(str.encode('tempa,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
 
-    for j in range(60*5): # 10 min
+    for j in range(60*10): # 10 min
         send_messages('templ,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!', serial_channel)
+
+serial_channel.write(str.encode('tempi,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
+time.sleep(1)
+serial_channel.write(str.encode('tempa,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))

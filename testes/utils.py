@@ -2,7 +2,7 @@ import os
 import csv
 import math
 import numpy as np
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 
 ##### AUXILIARY VARIBALES #####
@@ -75,7 +75,7 @@ def ad_od_led(commands): # AD -> mW/sr
     commands = np.clip(np.array(commands), 0, 4095)
 
     for value in commands:
-        current = 120 * value/4095 # mA
+        current = 50 * value/4095 # mA
         command_list += [0.8125*current + 3.75]
 
     return command_list
@@ -89,7 +89,7 @@ def od_led_ad(commands): # mW/sr -> AD
 
     for value in commands:
         current = (value - 3.75)/0.8125 # mA
-        command_list += [round(4095*current/120)]
+        command_list += [round(4095*current/50)]
 
     return command_list
 
@@ -116,7 +116,7 @@ def od_135_ad(commands, led_commands): # [0,1] -> AD
 
 
 if __name__ == "__main__":
-    '''ad = [i for i in range(4096)]
+    ad = [i for i in range(4096)]
     ad_ = [i for i in range(100)]
 
     temp = ad_temp(ad)
@@ -173,4 +173,4 @@ if __name__ == "__main__":
 
     plt.xlabel('Leitura AD')
     plt.ylabel('Transmissão (adimensional)')
-    plt.show()'''
+    plt.show()

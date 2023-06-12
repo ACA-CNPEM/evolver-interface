@@ -82,6 +82,5 @@ print("GO!")
 
 
 
-
-while True:
+for j in range(60*300):
     send_messages(path, serial_channel)

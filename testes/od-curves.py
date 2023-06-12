@@ -6,7 +6,7 @@ import csv
 import os
 
 
-points = np.array([i*409.5 for i in range(11)])
+points = np.array([i*40.95 for i in range(101)])
 commands = []
 
 for p in points:
@@ -70,7 +70,7 @@ def send_messages(command, channel):
 
 
 # Initializing experiment
-serial_channel.write(str.encode('stiri,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
+serial_channel.write(str.encode('stiri,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,_!'))
 time.sleep(1)
 serial_channel.write(str.encode('stira,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
 time.sleep(1)
@@ -83,7 +83,12 @@ time.sleep(1)
 serial_channel.write(str.encode('od_ledi,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
 time.sleep(1)
 serial_channel.write(str.encode('od_leda,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
-time.sleep(5)
+time.sleep(1)
+
+serial_channel.write(str.encode('od_135i,10,_!'))
+time.sleep(1)
+serial_channel.write(str.encode('od_135a,10,_!'))
+time.sleep(1)
 
 serial_channel.reset_input_buffer()
 print("GO!")
@@ -95,4 +100,10 @@ for command in commands:
     
     for i in range(5):
         send_messages(read_od, serial_channel)
-        send_messages(read_temp, serial_channel)
+
+
+serial_channel.write(str.encode('od_ledi,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
+time.sleep(1)
+serial_channel.write(str.encode('od_leda,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
+time.sleep(5)
+print("DONE!!!")
