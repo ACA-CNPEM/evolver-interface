@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from utils import *
 
 
-log_path = 'testes/logs/temp-curves/EVOLVER-1/log_26-05-23_14:41:51'
+log_path = 'testes/logs/od-curves/EVOLVER-2/log_13-06-23_09:10:18'
 ss2channel = [15,14,11,10,7,6,3,2,13,12,9,8,5,4,1,0]
 pump2ss =[[39,38,37,36,35,34,33,32,47,46,45,44,43,42,41,40],[23,22,21,20,19,18,17,16,31,30,29,28,27,26,25,24],[7,6,5,4,3,2,1,0,15,14,13,12,11,10,9,8]]
 
