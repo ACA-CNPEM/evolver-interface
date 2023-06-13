@@ -4,7 +4,9 @@ import matplotlib.pyplot as plt
 from utils import *
 
 
-log_path = 'testes/logs/od-curves/EVOLVER-2/log_13-06-23_09:10:18'
+log_path = 'testes/logs/od-curves/EVOLVER-2/log_22-05-23_09:40:30'
+log_description = "   "
+
 ss2channel = [15,14,11,10,7,6,3,2,13,12,9,8,5,4,1,0]
 pump2ss =[[39,38,37,36,35,34,33,32,47,46,45,44,43,42,41,40],[23,22,21,20,19,18,17,16,31,30,29,28,27,26,25,24],[7,6,5,4,3,2,1,0,15,14,13,12,11,10,9,8]]
 
@@ -712,6 +714,22 @@ if __name__ == "__main__":
 
     else:
         type = log_path.split('/')[1]
+        
+        with open('{}/Description.csv'.format("/".join(log_path.split('/')[:-1])),'r') as file:
+            file_content = csv.reader(file, delimiter=';')
+            content = [row for row in file_content]
+
+        found = False
+
+        for row in content:
+            if log_path.split('/')[-1] in row:
+                found = True
+                break
+        
+        if not found:
+            with open('{}/Description.csv'.format("/".join(log_path.split('/')[:-1])),'a') as file:
+                file_writer = csv.writer(file, delimiter=';')
+                file_writer.writerow([log_path.split('/')[-1], log_description])
         
         if type == 'od-curves':
             if not os.path.exists(f'{log_path}/organized_od.csv'):
