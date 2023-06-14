@@ -6,7 +6,7 @@ import csv
 import os
 
 
-points = np.array([i*40.95 for i in range(101)])
+points = np.array([i*409.5 for i in range(11)])
 commands = []
 
 for p in points:

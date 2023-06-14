@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from organize_logs import graph_data
 from utils import *
 
-logs = ['logs/od-curves/EVOLVER-1/log_01-06-23_13:00:06','logs/od-curves/EVOLVER-1/log_01-06-23_13:20:16', 
+logs_od = ['logs/od-curves/EVOLVER-1/log_01-06-23_13:00:06','logs/od-curves/EVOLVER-1/log_01-06-23_13:20:16', 
         'logs/od-curves/EVOLVER-1/log_01-06-23_13:40:34', 'logs/od-curves/EVOLVER-1/log_01-06-23_14:01:05',
         'logs/od-curves/EVOLVER-1/log_01-06-23_14:21:46', 'logs/od-curves/EVOLVER-1/log_01-06-23_14:41:50',
         'logs/od-curves/EVOLVER-1/log_02-06-23_09:41:41', 'logs/od-curves/EVOLVER-1/log_02-06-23_10:02:48',
@@ -12,8 +12,22 @@ logs = ['logs/od-curves/EVOLVER-1/log_01-06-23_13:00:06','logs/od-curves/EVOLVER
         'logs/od-curves/EVOLVER-1/log_05-06-23_10:01:54', 'logs/od-curves/EVOLVER-1/log_05-06-23_10:22:37', 
         'logs/od-curves/EVOLVER-1/log_05-06-23_10:48:00', 'logs/od-curves/EVOLVER-1/log_05-06-23_11:09:00']
 
+logs_repetibilidade = ['logs/od-curves/EVOLVER-2/log_13-06-23_08:39:40', 
+                       'logs/od-curves/EVOLVER-2/log_13-06-23_09:10:18', 
+                       'logs/od-curves/EVOLVER-2/log_13-06-23_11:26:38',
+                       'logs/od-curves/EVOLVER-2/log_13-06-23_12:28:03', 
+                       'logs/od-curves/EVOLVER-2/log_14-06-23_09:01:19',
+                       'logs/od-curves/EVOLVER-2/log_14-06-23_09:20:53',
+                       'logs/od-curves/EVOLVER-2/log_14-06-23_09:32:05',
+                       'logs/od-curves/EVOLVER-2/log_14-06-23_09:36:53',
+                       'logs/od-curves/EVOLVER-2/log_14-06-23_09:50:28',
+                       'logs/od-curves/EVOLVER-2/log_14-06-23_09:54:22',
+                       'logs/od-curves/EVOLVER-2/log_14-06-23_10:02:54',
+                       'logs/od-curves/EVOLVER-2/log_14-06-23_10:55:03',
+                       'logs/od-curves/EVOLVER-2/log_14-06-23_11:14:23']
 
-def data(logs, active_ss):
+
+def data_od(logs, active_ss):
     od_data = {
         'od': [2.0, 1.04, 0.75, 0.51, 0.22, 0.0],
         'led': {
@@ -139,8 +153,42 @@ def data(logs, active_ss):
     return od_data
 
 
-def graficos(logs,active_ss):
-    ods = data(logs, active_ss)
+def data_repetibilidade(logs, active_ss):
+    od_data = {}
+    od_data['led'] = ad_od_led([float(value) for value in graph_data(logs[0], 'organized_od')['led']])
+    od_data['avg'] = {}
+    od_data['max'] = {}
+    od_data['min'] = {}
+    od_data['dif'] = {}
+
+    for ss in active_ss:
+        od_data[f'SS{ss}'] = [[] for i in range(len(logs))]
+        od_data['avg'][f'SS{ss}'] = []
+        od_data['max'][f'SS{ss}'] = []
+        od_data['min'][f'SS{ss}'] = []
+        od_data['dif'][f'SS{ss}'] = []
+
+    for n,log in enumerate(logs):
+        od_raw_data = graph_data(log, 'organized_od')
+
+        for ss in active_ss:
+            od_data[f'SS{ss}'][n] = [3.3*float(value)/65520 for value in od_raw_data[f'SS{ss}']]
+    
+    for ss in active_ss:
+        for point in range(len(od_data[f'SS{ss}'][0])):
+            point_aux = [od_data[f'SS{ss}'][i][point] for i in range(len(logs))]
+            
+            od_data['avg'][f'SS{ss}'] += [sum(point_aux)/len(logs)]
+            od_data['max'][f'SS{ss}'] += [max(point_aux)]
+            od_data['min'][f'SS{ss}'] += [min(point_aux)]
+            od_data['dif'][f'SS{ss}'] += [od_data['max'][f'SS{ss}'][point] - od_data['min'][f'SS{ss}'][point]]
+
+    return od_data
+
+            
+
+def graficos_od(logs, active_ss):
+    ods = data_od(logs, active_ss)
 
     for ss in active_ss:
         if ss in[1,2]:
@@ -271,5 +319,32 @@ def graficos(logs,active_ss):
         plt.show()
 
 
+def graficos_repetibilidade(logs, active_ss):
+    ods = data_repetibilidade(logs, active_ss)
+
+    for ss in active_ss:
+        figure = plt.figure()
+        figure.set_figwidth(12)
+        figure.set_figheight(7)
+
+        plt.plot(ods['led'], ods['avg'][f'SS{ss}'], color='black', alpha=0.5)
+        plt.plot(ods['led'], ods['max'][f'SS{ss}'], color='black', linestyle='--', alpha=0.5)
+        plt.plot(ods['led'], ods['min'][f'SS{ss}'], color='black', linestyle='--', alpha=0.5)
+
+        for i in range(len(logs)):
+            plt.scatter(ods['led'], ods[f'SS{ss}'][i], label=f'nº{i+1} ({logs[i].split("/")[-1].split("_")[1]})')
+            #plt.errorbar(ods['led'], ods[f'SS{ss}'][i], xerr=, yerr=)
+        
+        plt.legend(title="Teste de nº:")
+        plt.title(f'Log de OD: Repetibilidade da SS{ss}')
+
+        plt.xlabel('Intensidade LED (mW/sr)')
+        plt.ylabel('Tensão PT (V)')
+        
+        plt.savefig(f'logs/od-curves/EVOLVER-2/Repetibilidade/SS{ss}.png')
+        plt.show()
+
+
 if __name__ == "__main__":
-    graficos(logs, [1,2,3,4,5,6,7,8])
+    #graficos_od(logs_od, [1,2,3,4,5,6,7,8])
+    graficos_repetibilidade(logs_repetibilidade, [1,2,3,4,5,6,7,8])
