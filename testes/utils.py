@@ -29,6 +29,9 @@ if os.path.exists(calibration_file_path):
     calibration['max'] = [float(item) for item in raw_data[1]]
 
 
+def sigmoid(x, a, b, c, d):
+    return a + (b - a)/(1 + (10**((c-x)*d)))
+
 
 def ad_stir(commands): # AD -> %
     commands = np.clip(np.array(commands), 0, 98)
@@ -116,7 +119,7 @@ def od_135_ad(commands, led_commands): # [0,1] -> AD
 
 
 if __name__ == "__main__":
-    ad = [i for i in range(4096)]
+    '''ad = [i for i in range(4096)]
     ad_ = [i for i in range(100)]
 
     temp = ad_temp(ad)
@@ -173,4 +176,4 @@ if __name__ == "__main__":
 
     plt.xlabel('Leitura AD')
     plt.ylabel('Transmissão (adimensional)')
-    plt.show()
+    plt.show()'''

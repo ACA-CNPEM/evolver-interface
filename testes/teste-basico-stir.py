@@ -32,37 +32,11 @@ def send_messages(command, channel):
 
 acknoledgment = 'stira,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,_!'
 
-send_messages('stiri,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,80,_!', serial_channel)
+send_messages('stiri,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,_!', serial_channel)
+serial_channel.write(str.encode(acknoledgment))
+time.sleep(1)
+
+send_messages('stiri,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,_!', serial_channel)
 serial_channel.write(str.encode(acknoledgment))
 time.sleep(5)
 
-send_messages('stiri,8,8,8,8,8,8,8,8,8,8,8,8,8,8,80,8,_!', serial_channel)
-serial_channel.write(str.encode(acknoledgment))
-time.sleep(5)
-
-send_messages('stiri,8,8,8,8,8,8,8,8,8,8,8,80,8,8,8,8,_!', serial_channel)
-serial_channel.write(str.encode(acknoledgment))
-time.sleep(5)
-
-send_messages('stiri,8,8,8,8,8,8,8,8,8,8,80,8,8,8,8,8,_!', serial_channel)
-serial_channel.write(str.encode(acknoledgment))
-time.sleep(5)
-
-send_messages('stiri,8,8,8,8,8,8,8,80,8,8,8,8,8,8,8,8,_!', serial_channel)
-serial_channel.write(str.encode(acknoledgment))
-time.sleep(5)
-
-send_messages('stiri,8,8,8,8,8,8,80,8,8,8,8,8,8,8,8,8,_!', serial_channel)
-serial_channel.write(str.encode(acknoledgment))
-time.sleep(5)
-
-send_messages('stiri,8,8,8,80,8,8,8,8,8,8,8,8,8,8,8,8,_!', serial_channel)
-serial_channel.write(str.encode(acknoledgment))
-time.sleep(5)
-
-send_messages('stiri,8,8,80,8,8,8,8,8,8,8,8,8,8,8,8,8,_!', serial_channel)
-serial_channel.write(str.encode(acknoledgment))
-time.sleep(5)
-
-send_messages('stiri,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,_!', serial_channel)
-serial_channel.write(str.encode(acknoledgment))

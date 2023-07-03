@@ -4,11 +4,13 @@ import matplotlib.pyplot as plt
 from utils import *
 
 
-log_path = 'testes/logs/od-curves/EVOLVER-2/log_14-06-23_11:14:23'
-log_description = "Repetibilidade 13"
+log_path = 'testes/logs/od-curves/EVOLVER-2/log_22-05-23_09:40:30'
+log_description = ""
 
 ss2channel = [15,14,11,10,7,6,3,2,13,12,9,8,5,4,1,0]
-pump2ss =[[39,38,37,36,35,34,33,32,47,46,45,44,43,42,41,40],[23,22,21,20,19,18,17,16,31,30,29,28,27,26,25,24],[7,6,5,4,3,2,1,0,15,14,13,12,11,10,9,8]]
+pump2ss =[[39,38,37,36,35,34,33,32,47,46,45,44,43,42,41,40],
+          [23,22,21,20,19,18,17,16,31,30,29,28,27,26,25,24],
+          [7,6,5,4,3,2,1,0,15,14,13,12,11,10,9,8]]
 
 
 # ORGANIZE FILES
@@ -150,6 +152,43 @@ def organize_od_curves(name):
                     line += [temp_data[i][j]]
 
                 log_writer.writerow(line)
+
+
+def organize_od_monitor(name):
+    columns = ['time']
+    for i in range(16):
+            columns += [f'SS{i+1}']
+
+    with open(f'{name}/od_135b_raw.csv', 'r') as log_file:
+        log_reader = csv.reader(log_file, delimiter=',')
+        raw_od = [row for row in log_reader]
+        
+    od_data = {}
+    for colun in columns:
+        od_data[colun] = []
+
+    t = float(raw_od[0][0])
+
+    for k,line in enumerate(raw_od):
+            od_data['time'] += [float(line[0]) - t]
+            line = line[2:]
+
+            for i in range(16):
+                od_data[f'SS{i+1}'] += [float(line[ss2channel[i]])]
+
+    with open(f'{name}/organized_od.csv', 'a') as log_file:
+        log_writer = csv.writer(log_file, delimiter=';')
+        log_writer.writerow(columns)
+
+        for i in range(len(od_data['time'])):
+            line = [od_data['time'][i]]
+
+            for j in range(16):
+                line += [od_data[f'SS{j+1}'][i]]
+
+            log_writer.writerow(line)
+
+
 
 
 def organize_temp_curves(name):
@@ -713,24 +752,10 @@ if __name__ == "__main__":
         print("LOG NOT FOUND!")
 
     else:
+        #organize_od_monitor(log_path)
+
         type = log_path.split('/')[1]
-        
-        with open('{}/Description.csv'.format("/".join(log_path.split('/')[:-1])),'r') as file:
-            file_content = csv.reader(file, delimiter=';')
-            content = [row for row in file_content]
-
-        found = False
-
-        for row in content:
-            if log_path.split('/')[-1] in row:
-                found = True
-                break
-        
-        if not found:
-            with open('{}/Description.csv'.format("/".join(log_path.split('/')[:-1])),'a') as file:
-                file_writer = csv.writer(file, delimiter=';')
-                file_writer.writerow([log_path.split('/')[-1], log_description])
-        
+             
         if type == 'od-curves':
             if not os.path.exists(f'{log_path}/organized_od.csv'):
                 organize_od_curves(log_path)
@@ -754,9 +779,3 @@ if __name__ == "__main__":
         
         if type == 'temp-curves-realtime':
             organize_temp_curves_realtime(log_path)
-
-        '''if type == 'interference-tests':
-            if not os.path.exists(f'{log_path}/csv'):
-                organize_interface_tests(log_path)
-            
-            graficos_interference_stir_od(log_path,[1,2,3,4,5,6,7,8],1)'''

@@ -12,15 +12,12 @@ channel = serial.Serial(
     timeout = 1
 )
 
-ss = 0
+ss = [1930, 1892, 1854, 1816, 1778, 1742, 1705, 1669, 4095, 4095, 4095, 4095, 4095, 4095, 4095, 4095]
 
-command = 'tempi,'
+command = 'tempr,'
 
 for i in range(16):
-    if(ss2channel.index(i) + 1 == ss):
-        command += '0,'
-    else:
-        command += '4095,'
+    command += '{},'.format(ss[ss2channel.index(i)])
 command += '_!'
 
 channel.write(str.encode(command))
