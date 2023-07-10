@@ -39,9 +39,9 @@ logs_od = [
         'logs/od-curves/EVOLVER-2/Amostras/log_30-06-23_11:30:37',
         'logs/od-curves/EVOLVER-2/Amostras/log_30-06-23_11:32:16',
         'logs/od-curves/EVOLVER-2/Amostras/log_30-06-23_11:33:59',
-    ]
+    ],
+    []
 ]
-
 
 logs_repetibilidade = [
     'logs/od-curves/EVOLVER-2/Repetibilidade/log_13-06-23_08:39:40', 
@@ -82,13 +82,19 @@ logs_tampas = {
     'com': 'logs/od-curves/EVOLVER-2/Tampa/log_14-06-23_13:21:39'
 }
 
-log_vol = [
+logs_vol = [
     'logs/od-curves/EVOLVER-2/VolumeMin/log_27-06-23_10:15:12',
     'logs/od-curves/EVOLVER-2/VolumeMin/log_27-06-23_10:31:07',
     'logs/od-curves/EVOLVER-2/VolumeMin/log_27-06-23_10:43:42',
     'logs/od-curves/EVOLVER-2/VolumeMin/log_27-06-23_11:01:57',
     'logs/od-curves/EVOLVER-2/VolumeMin/log_27-06-23_12:54:09',
     'logs/od-curves/EVOLVER-2/VolumeMin/log_28-06-23_08:44:49'
+]
+
+logs_crescimento = [
+    'testes/logs/od-curves/EVOLVER-2/log_30-06-23_11:37:59',
+    'testes/logs/od-curves/EVOLVER-2/log_30-06-23_15:06:18',
+    'od_evolver2.json'
 ]
 
 
@@ -367,6 +373,68 @@ def data_od_2(active_ss):
     return od_data
 
 
+def data_od_3(active_ss):
+    columns = ['led']
+    for i in range(16):
+            columns += [f'SS{i+1}']
+
+    with open(f'{logs_od[2][0]}/od_lede_raw.csv', 'r') as log_file:
+            log_reader = csv.reader(log_file, delimiter=',')
+            raw_led = [row for row in log_reader]
+
+    od_data = {
+            'n': len(raw_led),
+            'od': [],
+            'led': {
+                'ad': [float(data[2]) for data in raw_led],
+                'int_rad': ad_od_led([float(data[2]) for data in raw_led]),
+            },
+        }
+    
+    for ss in active_ss:
+        od_data[f'SS{ss}'] = {}
+    
+    for value in od_data['od']:
+        od_data[f'SS{ss}'][f'{value}'] = []
+    
+    for log in logs_od[1]:
+        with open(f'{log}/od_135b_raw.csv', 'r') as log_file:
+            log_reader = csv.reader(log_file, delimiter=',')
+            raw_od = [row for row in log_reader]
+
+        aux_od_data = {}
+
+        for ss in active_ss:
+            aux_od_data[f'SS{ss}'] = [[[] for i in range(5)] for j in range(od_data['n'])]
+        
+        p = 0
+        l = 0
+        for line in raw_od:               
+            line = line[2:]
+
+            if(p < 4):
+                for ss in active_ss:
+                    aux_od_data[f'SS{ss}'][l][p] = float(line[ss2channel[ss-1]])
+                p += 1
+                    
+            else:
+                for ss in active_ss:
+                    aux_od_data[f'SS{ss}'][l][p] = float(line[ss2channel[ss-1]])
+                p = 0
+                l += 1
+        
+        if log == logs_od[2][0]:
+            od_data['SS1']['0.25'] = aux_od_data['SS1']
+
+        elif log == logs_od[2][1]:
+            od_data['SS1']['0.44'] = aux_od_data['SS1']
+
+        else: #if log == logs_od[2][n]:
+            od_data['SS8']['0.25'] = aux_od_data['SS8']
+        
+    return od_data
+
+
 def data_repetibilidade(logs, active_ss):
     od_data = {}
 
@@ -600,6 +668,91 @@ def graficos_od_2(evolver, active_ss):
 
     plt.subplots_adjust(left=0.1, bottom=0.09, right=0.94, top=0.88, wspace=0.3, hspace=0.3)
     plt.savefig(f'logs/od-curves/EVOLVER-2/Amostras/Gráficos/FitLED100%-PorSS.png')
+    plt.show()
+
+
+def graficos_od_3(evolver, active_ss):
+    ods = data_od_3(active_ss)
+    date = '11-07-23'
+    
+    #
+    figure, axs = plt.subplots(2,4)
+    figure.set_figwidth(16)
+    figure.set_figheight(8)
+
+    for i in range(8):
+        for value in ods['od']:
+            aux = [statistics.fmean(ods[f'SS{i+1}']['{:.2f}'.format(value)][j]) for j in range(ods['n'])]
+            axs[i//4, (i%4)].plot(ods['led']['int_rad'], aux, label='{:.2f}'.format(value))
+        
+        axs[i//4, (i%4)].ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+        axs[i//4, (i%4)].set(title=f'SS{i+1} | {date}', xlabel='Intensidade LED (mW/sr)', ylabel='Leitura AD do PT (16 bits)')
+        axs[i//4, (i%4)].legend(title='OD_600:', loc='best', fontsize="8")
+
+    figure.suptitle(f'Log de OD - eVOLVER {evolver}\nTensão média medida no PT em função da intensidade de radiação emitida pelo LED\n')
+    plt.subplots_adjust(left=0.074, bottom=0.086, right=0.94, top=0.88, wspace=0.212, hspace=0.31)
+
+    plt.savefig(f'logs/od-curves/EVOLVER-2/Amostras-2/Gráficos/PTxLEDxOD-PorSS.png')
+    plt.show()
+
+    #
+    coefficients = [[] for ss in active_ss]
+    coef_cov = [[] for ss in active_ss]
+    vial_data = [[] for ss in active_ss]
+    
+    median = [[] for ss in active_ss]
+    std = [[] for ss in active_ss]
+    
+    for ss in active_ss:
+        figure, ax = plt.subplots(2,2)
+        figure.set_figwidth(16)
+        figure.set_figheight(8)
+
+        figure.suptitle(f'Log de OD600 para SS{ss}, eVOLVER {evolver} | {date}\nFit sigmoide para medidas de OD_600, para diferentes emissões do LED')
+
+        for i in range(4):
+            vial_data[ss-1] += [[ods[f'SS{ss}']['{:.2f}'.format(j)][i] for j in ods['od']]]
+
+        for i,vial in enumerate(vial_data[ss-1]):
+            median[ss-1] += [[np.median(data) for data in vial]]
+
+            std[ss-1] += [[np.std(data) for data in vial]]
+
+            param, cov = curve_fit(sigmoid, ods['od'], median[ss-1][i], p0=[62721, 62721, 0, -1], maxfev=1000000000)
+            coefficients[ss-1].append(np.array(param).tolist())
+            coef_cov[ss-1].append(np.array(cov).tolist())
+
+        linear_space = np.linspace(0, max(ods['od']), 500)
+        
+        '''for i,led in enumerate([25,50,75,100]):
+            ax[i//2, (i%2)].plot(ods['od'], median[ss-1][i], 'o', markersize=3, color='black')
+            ax[i//2, (i%2)].errorbar(ods['od'], median[ss-1][i], yerr=std[ss-1][i], fmt='none', capsize=2, color='red')
+            ax[i//2, (i%2)].plot(linear_space, sigmoid(linear_space, *coefficients[ss-1][i]), markersize = 1.5, label = None)
+            ax[i//2, (i%2)].ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+
+            ax[i//2, (i%2)].set(xlabel='OD_600',ylabel='Leitura AD do PT (16 bits)', title='Fit para LED emitindo {}%'.format(led))
+
+        plt.subplots_adjust(left=0.1, bottom=0.09, right=0.94, top=0.88, wspace=0.24, hspace=0.275)
+        plt.savefig(f'logs/od-curves/EVOLVER-2/Amostras/Gráficos/Fit-SS{ss}.png')
+        plt.show()'''
+
+    #
+    fig, ax = plt.subplots(2,4)
+    fig.set_figwidth(16)
+    fig.set_figheight(8)
+
+    plt.suptitle("Fit sigmoide para OD_600 - eVOLVER{}\nLED em 100%".format(evolver, ods['led']['int_rad'][3]))
+
+    for i in range(8): #[-1] = led em 100%
+        ax[i//4, (i%4)].plot(ods['od'], median[i][-1], 'o', markersize=3, color='black')
+        ax[i//4, (i%4)].errorbar(ods['od'], median[i][-1], yerr=std[i][-1], fmt='none', capsize=2, color='red')
+        ax[i//4, (i%4)].plot(linear_space, sigmoid(linear_space, *coefficients[i][-1]), markersize = 1.5, label = None)
+        ax[i//4, (i%4)].ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+
+        ax[i//4, (i%4)].set(xlabel='OD_600',ylabel='Leitura AD do PT (16 bits)', title='SS{}'.format(i+1))
+
+    plt.subplots_adjust(left=0.1, bottom=0.09, right=0.94, top=0.88, wspace=0.3, hspace=0.3)
+    plt.savefig(f'logs/od-curves/EVOLVER-2/Amostras-2/Gráficos/FitLED100%-PorSS.png')
     plt.show()
 
 
@@ -877,10 +1030,11 @@ if __name__ == "__main__":
     
     #graficos_od_1(1, [1,2,3,4,5,6,7,8])
     graficos_od_2(2, [1,2,3,4,5,6,7,8])
+    #graficos_od_3(2, [1,2,3,4,5,6,7,8])
 
     #graficos_repetibilidade(logs_repetibilidade, 10, 2, [1,2,3,4,5,6,7,8])
     #graficos_repetibilidade(logs_repetibilidade_100[0], 100, 2, [1,2,3,4,5,6,7,8])
     #graficos_repetibilidade(logs_repetibilidade_100[1], 100, 1, [1,2,3,4,5,6,7,8])
     
     #analise(logs_od, logs_repetibilidade_100[1], 1, [1,2,3,4,5,6,7,8])
-    #od_monitor_grafico(2, log_vol)
+    #od_monitor_grafico(2, logs_vol)
