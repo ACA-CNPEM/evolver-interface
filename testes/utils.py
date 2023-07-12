@@ -32,6 +32,8 @@ if os.path.exists(calibration_file_path):
 def sigmoid(x, a, b, c, d):
     return a + (b - a)/(1 + (10**((c-x)*d)))
 
+#def calc_od(x, a, b, c, d):
+
 
 def ad_stir(commands): # AD -> %
     commands = np.clip(np.array(commands), 0, 98)

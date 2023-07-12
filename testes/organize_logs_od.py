@@ -40,7 +40,24 @@ logs_od = [
         'logs/od-curves/EVOLVER-2/Amostras/log_30-06-23_11:32:16',
         'logs/od-curves/EVOLVER-2/Amostras/log_30-06-23_11:33:59',
     ],
-    []
+    [
+        'logs/od-curves/EVOLVER-2/Amostras-2/log_11-07-23_11:04:31',
+        'logs/od-curves/EVOLVER-2/Amostras-2/log_11-07-23_11:06:39',
+        'logs/od-curves/EVOLVER-2/Amostras-2/log_11-07-23_11:08:24',
+        'logs/od-curves/EVOLVER-2/Amostras-2/log_11-07-23_10:55:18',
+        'logs/od-curves/EVOLVER-2/Amostras-2/log_11-07-23_10:57:15',
+        'logs/od-curves/EVOLVER-2/Amostras-2/log_11-07-23_10:59:24',
+        'logs/od-curves/EVOLVER-2/Amostras-2/log_11-07-23_11:01:05',
+        'logs/od-curves/EVOLVER-2/Amostras-2/log_11-07-23_11:02:50',
+        'logs/od-curves/EVOLVER-2/Amostras-2/log_11-07-23_11:23:58',
+        'logs/od-curves/EVOLVER-2/Amostras-2/log_11-07-23_11:26:06',
+        'logs/od-curves/EVOLVER-2/Amostras-2/log_11-07-23_11:30:09',
+        'logs/od-curves/EVOLVER-2/Amostras-2/log_11-07-23_11:31:49',
+        'logs/od-curves/EVOLVER-2/Amostras-2/log_11-07-23_11:33:20',
+        'logs/od-curves/EVOLVER-2/Amostras-2/log_11-07-23_11:36:06',
+        'logs/od-curves/EVOLVER-2/Amostras-2/log_11-07-23_11:37:34',
+        'logs/od-curves/EVOLVER-2/Amostras-2/log_11-07-23_11:39:12',
+    ]
 ]
 
 logs_repetibilidade = [
@@ -92,8 +109,8 @@ logs_vol = [
 ]
 
 logs_crescimento = [
-    'testes/logs/od-curves/EVOLVER-2/log_30-06-23_11:37:59',
-    'testes/logs/od-curves/EVOLVER-2/log_30-06-23_15:06:18',
+    'logs/od-curves/EVOLVER-2/log_30-06-23_11:37:59',
+    'logs/od-curves/EVOLVER-2/log_30-06-23_15:06:18',
     'od_evolver2.json'
 ]
 
@@ -155,12 +172,12 @@ def data_od_1(active_ss):
                 l += 1
         
         if log == logs_od[0][0]:
-            od_data['SS1']['2.00'] = aux_od_data['SS1']
+            od_data['SS1']['2.25'] = aux_od_data['SS1']
             od_data['SS2']['1.04'] = aux_od_data['SS2']
 
         elif log == logs_od[0][1]:
             od_data['SS1']['1.04'] = aux_od_data['SS1']
-            od_data['SS2']['2.00'] = aux_od_data['SS2']
+            od_data['SS2']['2.25'] = aux_od_data['SS2']
 
         elif log == logs_od[0][2]:
             od_data['SS1']['0.75'] = aux_od_data['SS1']
@@ -179,19 +196,19 @@ def data_od_1(active_ss):
             od_data['SS2']['0.22'] = aux_od_data['SS2']
 
         elif log == logs_od[0][6]:
-            od_data['SS3']['2.00'] = aux_od_data['SS3']
+            od_data['SS3']['2.25'] = aux_od_data['SS3']
             od_data['SS4']['1.04'] = aux_od_data['SS4']
             od_data['SS5']['0.75'] = aux_od_data['SS5']
 
         elif log == logs_od[0][7]:
             od_data['SS3']['0.75'] = aux_od_data['SS3']
-            od_data['SS4']['2.00'] = aux_od_data['SS4']
+            od_data['SS4']['2.25'] = aux_od_data['SS4']
             od_data['SS5']['1.04'] = aux_od_data['SS5']
 
         elif log == logs_od[0][8]:
             od_data['SS3']['1.04'] = aux_od_data['SS3']
             od_data['SS4']['0.75'] = aux_od_data['SS4']
-            od_data['SS5']['2.00'] = aux_od_data['SS5']
+            od_data['SS5']['2.25'] = aux_od_data['SS5']
 
         elif log == logs_od[0][9]:
             od_data['SS3']['0.51'] = aux_od_data['SS3']
@@ -209,18 +226,18 @@ def data_od_1(active_ss):
             od_data['SS5']['0.22'] = aux_od_data['SS5']
         
         elif log == logs_od[0][12]:
-            od_data['SS6']['2.00'] = aux_od_data['SS6']
+            od_data['SS6']['2.25'] = aux_od_data['SS6']
             od_data['SS7']['1.04'] = aux_od_data['SS7']
             od_data['SS8']['0.75'] = aux_od_data['SS8']
 
         elif log == logs_od[0][13]:
             od_data['SS6']['1.04'] = aux_od_data['SS6']
             od_data['SS7']['0.75'] = aux_od_data['SS7']
-            od_data['SS8']['2.00'] = aux_od_data['SS8']
+            od_data['SS8']['2.25'] = aux_od_data['SS8']
 
         elif log == logs_od[0][14]:
             od_data['SS6']['0.75'] = aux_od_data['SS6']
-            od_data['SS7']['2.00'] = aux_od_data['SS7']
+            od_data['SS7']['2.25'] = aux_od_data['SS7']
             od_data['SS8']['1.04'] = aux_od_data['SS8']
 
         elif log == logs_od[0][15]:
@@ -383,11 +400,11 @@ def data_od_3(active_ss):
             raw_led = [row for row in log_reader]
 
     od_data = {
-            'n': len(raw_led),
-            'od': [],
+            'n': len(raw_led)-2,
+            'od': [2.25, 1.70, 1.15, 0.72, 0.58, 0.41, 0.22, 0.10, 0.00],
             'led': {
-                'ad': [float(data[2]) for data in raw_led],
-                'int_rad': ad_od_led([float(data[2]) for data in raw_led]),
+                'ad': [float(data[2]) for data in raw_led[1:4]],
+                'int_rad': ad_od_led([float(data[2]) for data in raw_led[1:4]]),
             },
         }
     
@@ -397,7 +414,7 @@ def data_od_3(active_ss):
     for value in od_data['od']:
         od_data[f'SS{ss}'][f'{value}'] = []
     
-    for log in logs_od[1]:
+    for log in logs_od[2]:
         with open(f'{log}/od_135b_raw.csv', 'r') as log_file:
             log_reader = csv.reader(log_file, delimiter=',')
             raw_od = [row for row in log_reader]
@@ -409,7 +426,7 @@ def data_od_3(active_ss):
         
         p = 0
         l = 0
-        for line in raw_od:               
+        for line in raw_od[5:20]:           
             line = line[2:]
 
             if(p < 4):
@@ -424,14 +441,110 @@ def data_od_3(active_ss):
                 l += 1
         
         if log == logs_od[2][0]:
-            od_data['SS1']['0.25'] = aux_od_data['SS1']
+            od_data['SS1']['2.25'] = aux_od_data['SS1']
+            od_data['SS2']['0.10'] = aux_od_data['SS2']
+            od_data['SS3']['0.22'] = aux_od_data['SS3']
+            od_data['SS4']['0.41'] = aux_od_data['SS4']
+            od_data['SS5']['0.58'] = aux_od_data['SS5']
+            od_data['SS6']['0.72'] = aux_od_data['SS6']
+            od_data['SS7']['1.15'] = aux_od_data['SS7']
+            od_data['SS8']['1.70'] = aux_od_data['SS8']
 
         elif log == logs_od[2][1]:
-            od_data['SS1']['0.44'] = aux_od_data['SS1']
+            od_data['SS1']['1.70'] = aux_od_data['SS1']
+            od_data['SS2']['2.25'] = aux_od_data['SS2']
+            od_data['SS3']['0.10'] = aux_od_data['SS3']
+            od_data['SS4']['0.22'] = aux_od_data['SS4']
+            od_data['SS5']['0.41'] = aux_od_data['SS5']
+            od_data['SS6']['0.58'] = aux_od_data['SS6']
+            od_data['SS7']['0.72'] = aux_od_data['SS7']
+            od_data['SS8']['1.15'] = aux_od_data['SS8']
+            
+        elif log == logs_od[2][2]:
+            od_data['SS1']['1.15'] = aux_od_data['SS1']
+            od_data['SS2']['1.70'] = aux_od_data['SS2']
+            od_data['SS3']['2.25'] = aux_od_data['SS3']
+            od_data['SS4']['0.10'] = aux_od_data['SS4']
+            od_data['SS5']['0.22'] = aux_od_data['SS5']
+            od_data['SS6']['0.41'] = aux_od_data['SS6']
+            od_data['SS7']['0.58'] = aux_od_data['SS7']
+            od_data['SS8']['0.72'] = aux_od_data['SS8']
+
+        elif log == logs_od[2][3]:
+            od_data['SS1']['0.72'] = aux_od_data['SS1']
+            od_data['SS2']['1.15'] = aux_od_data['SS2']
+            od_data['SS3']['1.70'] = aux_od_data['SS3']
+            od_data['SS4']['2.25'] = aux_od_data['SS4']
+            od_data['SS5']['0.10'] = aux_od_data['SS5']
+            od_data['SS6']['0.22'] = aux_od_data['SS6']
+            od_data['SS7']['0.41'] = aux_od_data['SS7']
+            od_data['SS8']['0.58'] = aux_od_data['SS8']
+
+        elif log == logs_od[2][4]:
+            od_data['SS1']['0.58'] = aux_od_data['SS1']
+            od_data['SS2']['0.72'] = aux_od_data['SS2']
+            od_data['SS3']['1.15'] = aux_od_data['SS3']
+            od_data['SS4']['1.70'] = aux_od_data['SS4']
+            od_data['SS5']['2.25'] = aux_od_data['SS5']
+            od_data['SS6']['0.10'] = aux_od_data['SS6']
+            od_data['SS7']['0.22'] = aux_od_data['SS7']
+            od_data['SS8']['0.41'] = aux_od_data['SS8']
+        
+        elif log == logs_od[2][5]:
+            od_data['SS1']['0.41'] = aux_od_data['SS1']
+            od_data['SS2']['0.58'] = aux_od_data['SS2']
+            od_data['SS3']['0.72'] = aux_od_data['SS3']
+            od_data['SS4']['1.15'] = aux_od_data['SS4']
+            od_data['SS5']['1.70'] = aux_od_data['SS5']
+            od_data['SS6']['2.25'] = aux_od_data['SS6']
+            od_data['SS7']['0.10'] = aux_od_data['SS7']
+            od_data['SS8']['0.22'] = aux_od_data['SS8']
+
+        elif log == logs_od[2][6]:
+            od_data['SS1']['0.22'] = aux_od_data['SS1']
+            od_data['SS2']['0.41'] = aux_od_data['SS2']
+            od_data['SS3']['0.58'] = aux_od_data['SS3']
+            od_data['SS4']['0.72'] = aux_od_data['SS4']
+            od_data['SS5']['1.15'] = aux_od_data['SS5']
+            od_data['SS6']['1.70'] = aux_od_data['SS6']
+            od_data['SS7']['2.25'] = aux_od_data['SS7']
+            od_data['SS8']['0.10'] = aux_od_data['SS8']
+
+        elif log == logs_od[2][7]:
+            od_data['SS1']['0.10'] = aux_od_data['SS1']
+            od_data['SS2']['0.22'] = aux_od_data['SS2']
+            od_data['SS3']['0.41'] = aux_od_data['SS3']
+            od_data['SS4']['0.58'] = aux_od_data['SS4']
+            od_data['SS5']['0.72'] = aux_od_data['SS5']
+            od_data['SS6']['1.15'] = aux_od_data['SS6']
+            od_data['SS7']['1.70'] = aux_od_data['SS7']
+            od_data['SS8']['2.25'] = aux_od_data['SS8']        
+
+        elif log == logs_od[2][8]:
+            od_data['SS1']['0.00'] = aux_od_data['SS1']
+            
+        elif log == logs_od[2][9]:
+            od_data['SS2']['0.00'] = aux_od_data['SS2']
+            
+        elif log == logs_od[2][10]:
+            od_data['SS3']['0.00'] = aux_od_data['SS3']
+          
+        elif log == logs_od[2][11]:
+            od_data['SS4']['0.00'] = aux_od_data['SS4']
+            
+        elif log == logs_od[2][12]:
+            od_data['SS5']['0.00'] = aux_od_data['SS5']
+            
+        elif log == logs_od[2][13]:
+            od_data['SS6']['0.00'] = aux_od_data['SS6']
+            
+        elif log == logs_od[2][14]:
+            od_data['SS7']['0.00'] = aux_od_data['SS7']
 
         else: #if log == logs_od[2][n]:
-            od_data['SS8']['0.25'] = aux_od_data['SS8']
-        
+            od_data['SS8']['0.00'] = aux_od_data['SS8']
+    
+    #print(od_data)
     return od_data
 
 
@@ -605,18 +718,19 @@ def graficos_od_2(evolver, active_ss):
     #
     coefficients = [[] for ss in active_ss]
     coef_cov = [[] for ss in active_ss]
+    chisq = []
     vial_data = [[] for ss in active_ss]
     
     median = [[] for ss in active_ss]
     std = [[] for ss in active_ss]
     
     for ss in active_ss:
-        figure, ax = plt.subplots(2,2)
+        '''figure, ax = plt.subplots(2,2)
         figure.set_figwidth(16)
         figure.set_figheight(8)
 
         figure.suptitle(f'Log de OD600 para SS{ss}, eVOLVER {evolver} | {date}\nFit sigmoide para medidas de OD_600, para diferentes emissões do LED')
-
+        '''
         for i in range(4):
             vial_data[ss-1] += [[ods[f'SS{ss}']['{:.2f}'.format(j)][i] for j in ods['od']]]
             #vial_data[ss-1][i] += [ods['10mL'][f'SS{ss}']['{:.2f}'.format(j)][i] for j in ods['od']]
@@ -633,12 +747,16 @@ def graficos_od_2(evolver, active_ss):
             std[ss-1] += [[np.std(data) for data in vial]]
             std[ss-1][i] += [np.std(data) for data in vial]
 
-            param, cov = curve_fit(sigmoid, aux_ods, median[ss-1][i], p0=[62721, 62721, 0, -1], maxfev=1000000000)
+            param, cov = curve_fit(sigmoid, aux_ods, median[ss-1][i], p0=[62721, 62721, 0, -1], maxfev=1000000000, sigma=std[ss-1][i], absolute_sigma=True)
+            '''print(a)
+            param = a[0]
+            cov = a[1]'''
             coefficients[ss-1].append(np.array(param).tolist())
             coef_cov[ss-1].append(np.array(cov).tolist())
 
         linear_space = np.linspace(0, max(ods['od']), 500)
-        
+
+        '''
         for i,led in enumerate([25,50,75,100]):
             ax[i//2, (i%2)].plot(aux_ods, median[ss-1][i], 'o', markersize=3, color='black')
             ax[i//2, (i%2)].errorbar(aux_ods, median[ss-1][i], yerr=std[ss-1][i], fmt='none', capsize=2, color='red')
@@ -650,6 +768,7 @@ def graficos_od_2(evolver, active_ss):
         plt.subplots_adjust(left=0.1, bottom=0.09, right=0.94, top=0.88, wspace=0.24, hspace=0.275)
         plt.savefig(f'logs/od-curves/EVOLVER-2/Amostras/Gráficos/Fit-SS{ss}.png')
         plt.show()
+        '''
 
     #
     fig, ax = plt.subplots(2,4)
@@ -659,12 +778,17 @@ def graficos_od_2(evolver, active_ss):
     plt.suptitle("Fit sigmoide para OD_600 - eVOLVER{}\nLED em 100%".format(evolver, ods['led']['int_rad'][3]))
 
     for i in range(8):
-        ax[i//4, (i%4)].plot(aux_ods, median[i][-1], 'o', markersize=3, color='black')
-        ax[i//4, (i%4)].errorbar(aux_ods, median[i][-1], yerr=std[i][-1], fmt='none', capsize=2, color='red')
-        ax[i//4, (i%4)].plot(linear_space, sigmoid(linear_space, *coefficients[i][-1]), markersize = 1.5, label = None)
-        ax[i//4, (i%4)].ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+        for k,v in enumerate([25,50,75,100]):
+            calc_values = sigmoid(np.array(aux_ods), *coefficients[i][k])
+            chi = ((calc_values - median[i][k])**2) / median[i][k]
+
+            ax[i//4, (i%4)].plot(aux_ods, median[i][k], 'o', markersize=3, color='black')
+            ax[i//4, (i%4)].errorbar(aux_ods, median[i][k], yerr=std[i][k], fmt='none', capsize=2, color='red')
+            ax[i//4, (i%4)].plot(linear_space, sigmoid(linear_space, *coefficients[i][k]), markersize = 1.5, label = '{}% -> chisq: {:.1e}'.format(v,sum(chi)))
+            ax[i//4, (i%4)].ticklabel_format(style='sci', axis='y', scilimits=(0,0))
 
         ax[i//4, (i%4)].set(xlabel='OD_600',ylabel='Leitura AD do PT (16 bits)', title='SS{}'.format(i+1))
+        ax[i//4, (i%4)].legend(title='LED')
 
     plt.subplots_adjust(left=0.1, bottom=0.09, right=0.94, top=0.88, wspace=0.3, hspace=0.3)
     plt.savefig(f'logs/od-curves/EVOLVER-2/Amostras/Gráficos/FitLED100%-PorSS.png')
@@ -676,7 +800,7 @@ def graficos_od_3(evolver, active_ss):
     date = '11-07-23'
     
     #
-    figure, axs = plt.subplots(2,4)
+    figure, axs = plt.subplots(2,4, sharey=True)
     figure.set_figwidth(16)
     figure.set_figheight(8)
 
@@ -704,13 +828,13 @@ def graficos_od_3(evolver, active_ss):
     std = [[] for ss in active_ss]
     
     for ss in active_ss:
-        figure, ax = plt.subplots(2,2)
+        '''figure, ax = plt.subplots(1,3)
         figure.set_figwidth(16)
-        figure.set_figheight(8)
+        figure.set_figheight(8)'''
 
         figure.suptitle(f'Log de OD600 para SS{ss}, eVOLVER {evolver} | {date}\nFit sigmoide para medidas de OD_600, para diferentes emissões do LED')
-
-        for i in range(4):
+        
+        for i in range(ods['n']):
             vial_data[ss-1] += [[ods[f'SS{ss}']['{:.2f}'.format(j)][i] for j in ods['od']]]
 
         for i,vial in enumerate(vial_data[ss-1]):
@@ -724,36 +848,41 @@ def graficos_od_3(evolver, active_ss):
 
         linear_space = np.linspace(0, max(ods['od']), 500)
         
-        '''for i,led in enumerate([25,50,75,100]):
-            ax[i//2, (i%2)].plot(ods['od'], median[ss-1][i], 'o', markersize=3, color='black')
-            ax[i//2, (i%2)].errorbar(ods['od'], median[ss-1][i], yerr=std[ss-1][i], fmt='none', capsize=2, color='red')
-            ax[i//2, (i%2)].plot(linear_space, sigmoid(linear_space, *coefficients[ss-1][i]), markersize = 1.5, label = None)
-            ax[i//2, (i%2)].ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+        '''for i,led in enumerate([25,50,75]):
+            ax[i].plot(ods['od'], median[ss-1][i], 'o', markersize=3, color='black')
+            ax[i].errorbar(ods['od'], median[ss-1][i], yerr=std[ss-1][i], fmt='none', capsize=2, color='red')
+            ax[i].plot(linear_space, sigmoid(linear_space, *coefficients[ss-1][i]), markersize = 1.5, label = None)
+            ax[i].ticklabel_format(style='sci', axis='y', scilimits=(0,0))
 
-            ax[i//2, (i%2)].set(xlabel='OD_600',ylabel='Leitura AD do PT (16 bits)', title='Fit para LED emitindo {}%'.format(led))
+            ax[i].set(xlabel='OD_600',ylabel='Leitura AD do PT (16 bits)', title='Fit para LED emitindo {}%'.format(led))
 
         plt.subplots_adjust(left=0.1, bottom=0.09, right=0.94, top=0.88, wspace=0.24, hspace=0.275)
         plt.savefig(f'logs/od-curves/EVOLVER-2/Amostras/Gráficos/Fit-SS{ss}.png')
         plt.show()'''
+        
 
     #
-    fig, ax = plt.subplots(2,4)
+    fig, ax = plt.subplots(2,4, sharey=True)
     fig.set_figwidth(16)
     fig.set_figheight(8)
 
-    plt.suptitle("Fit sigmoide para OD_600 - eVOLVER{}\nLED em 100%".format(evolver, ods['led']['int_rad'][3]))
+    plt.suptitle("Fit sigmoide para OD_600 - eVOLVER{}".format(evolver)) #, ods['led']['int_rad'][3]))
 
     for i in range(8): #[-1] = led em 100%
-        ax[i//4, (i%4)].plot(ods['od'], median[i][-1], 'o', markersize=3, color='black')
-        ax[i//4, (i%4)].errorbar(ods['od'], median[i][-1], yerr=std[i][-1], fmt='none', capsize=2, color='red')
-        ax[i//4, (i%4)].plot(linear_space, sigmoid(linear_space, *coefficients[i][-1]), markersize = 1.5, label = None)
-        ax[i//4, (i%4)].ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+        for k,led in enumerate([25,50,75]):
+            ax[i//4, (i%4)].plot(ods['od'], median[i][k], 'o', markersize=3, color='black')
+            ax[i//4, (i%4)].errorbar(ods['od'], median[i][k], yerr=std[i][k], fmt='none', capsize=2, color='red')
+            ax[i//4, (i%4)].plot(linear_space, sigmoid(linear_space, *coefficients[i][k]), markersize = 1.5, label = "{}%".format(led))
+            ax[i//4, (i%4)].ticklabel_format(style='sci', axis='y', scilimits=(0,0))
 
         ax[i//4, (i%4)].set(xlabel='OD_600',ylabel='Leitura AD do PT (16 bits)', title='SS{}'.format(i+1))
+        ax[i//4, (i%4)].legend(title="LED:")
 
     plt.subplots_adjust(left=0.1, bottom=0.09, right=0.94, top=0.88, wspace=0.3, hspace=0.3)
     plt.savefig(f'logs/od-curves/EVOLVER-2/Amostras-2/Gráficos/FitLED100%-PorSS.png')
     plt.show()
+
+    print(coefficients)
 
 
 def graficos_repetibilidade(logs, pts, evolver, active_ss):
@@ -1029,8 +1158,8 @@ if __name__ == "__main__":
     #graficos_tampas(logs_tampas, 2, [1,2,3,4,5,6,7,8])
     
     #graficos_od_1(1, [1,2,3,4,5,6,7,8])
-    graficos_od_2(2, [1,2,3,4,5,6,7,8])
-    #graficos_od_3(2, [1,2,3,4,5,6,7,8])
+    #graficos_od_2(2, [1,2,3,4,5,6,7,8])
+    graficos_od_3(2, [1,2,3,4,5,6,7,8])
 
     #graficos_repetibilidade(logs_repetibilidade, 10, 2, [1,2,3,4,5,6,7,8])
     #graficos_repetibilidade(logs_repetibilidade_100[0], 100, 2, [1,2,3,4,5,6,7,8])
