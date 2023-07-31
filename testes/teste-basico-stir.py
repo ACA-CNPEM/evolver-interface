@@ -36,7 +36,7 @@ send_messages('stiri,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100
 serial_channel.write(str.encode(acknoledgment))
 time.sleep(1)
 
-send_messages('stiri,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,50,_!', serial_channel)
+send_messages('stiri,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,_!', serial_channel)
 serial_channel.write(str.encode(acknoledgment))
 time.sleep(5)
 

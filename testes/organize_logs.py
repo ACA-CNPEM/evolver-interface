@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from utils import *
 
 
-log_path = 'testes/logs/od-curves/EVOLVER-2/log_22-05-23_09:40:30'
+log_path = 'testes/logs/od-curves/EVOLVER-1/log_31-07-23_13:03:51'
 log_description = ""
 
 ss2channel = [15,14,11,10,7,6,3,2,13,12,9,8,5,4,1,0]
@@ -117,7 +117,7 @@ def organize_od_curves(name):
 
             log_writer.writerow(line)
 
-
+    '''
     if os.path.exists(f'{name}/tempb_raw.csv'):
         with open(f'{name}/tempb_raw.csv', 'r') as log_file:
             log_reader = csv.reader(log_file, delimiter=',')
@@ -152,6 +152,7 @@ def organize_od_curves(name):
                     line += [temp_data[i][j]]
 
                 log_writer.writerow(line)
+    '''
 
 
 def organize_od_monitor(name):

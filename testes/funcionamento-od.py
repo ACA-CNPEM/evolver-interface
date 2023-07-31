@@ -44,7 +44,7 @@ while channel.in_waiting:
 print()
 message = str.encode('od_135l,0,_!')
 channel.write(message)
-time.sleep(1)
+time.sleep(20)
 
 input_string = ""
     

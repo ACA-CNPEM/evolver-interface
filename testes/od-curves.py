@@ -5,8 +5,10 @@ import time
 import csv
 import os
 
+n_points = 10
+points = np.array([round((i+1)*(4095/n_points)) for i in range(n_points)])
+np.clip(points, 0, 4095)
 
-points = np.array([i*1023.75 for i in range(5)])
 commands = []
 
 for p in points:
@@ -71,32 +73,39 @@ def send_messages(command, channel):
 
 # Initializing experiment
 serial_channel.write(str.encode('stiri,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,_!'))
-time.sleep(1)
-serial_channel.write(str.encode('stira,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
 time.sleep(2)
-
-serial_channel.write(str.encode('stiri,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,_!'))
-time.sleep(1)
 serial_channel.write(str.encode('stira,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
-time.sleep(2)
-
-serial_channel.write(str.encode('tempi,1854,1854,1854,1854,1854,1854,1854,1854,1854,1854,1854,1854,1854,1854,1854,1854,_!'))
 time.sleep(1)
+
+serial_channel.write(str.encode('stiri,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
+time.sleep(2)
+serial_channel.write(str.encode('stira,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
+time.sleep(1)
+
+serial_channel.write(str.encode('tempi,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,4095,_!'))
+time.sleep(2)
 serial_channel.write(str.encode('tempa,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
 time.sleep(1)
 
-serial_channel.write(str.encode('od_135i,6,_!'))
+#serial_channel.write(str.encode('pumpi,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,0.1|10,_!'))
+serial_channel.write(str.encode('pumpi,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
+time.sleep(2)
+serial_channel.write(str.encode('pumpa,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,_!'))
 time.sleep(1)
+
+serial_channel.write(str.encode('od_135i,6,_!'))
+time.sleep(2)
 serial_channel.write(str.encode('od_135a,6,_!'))
 time.sleep(1)
 
 serial_channel.reset_input_buffer()
 print("GO!")
 
+
 for command in commands:
     send_messages(command, serial_channel)
     serial_channel.write(str.encode(acknoledgment))
-    time.sleep(5)
+    time.sleep(20)
     
     send_messages(read_temp, serial_channel)
     for i in range(5):
